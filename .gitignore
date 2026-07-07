@@ -1,0 +1,37 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+pythonenv*
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# --- Environment / secrets ---
+.env
+.env.local
+.env.*.local
+
+# --- Editor / OS ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# --- Logs ---
+*.log
+logs/
+
+# --- App runtime ---
+# Saved signature recipes live under data/cocktails/signatures/ and ARE tracked
+# (they are part of the knowledge base). Nothing to ignore there by default.
