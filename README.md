@@ -53,6 +53,10 @@ cp .env.example .env
 # then edit .env and set LLM_API_KEY (and LLM_BASE_URL / LLM_MODEL if needed)
 ```
 
+> **`.env` is gitignored** — it holds your real API key and is never committed. **`.env.example` is the tracked template** you copy from. You can also edit these live in the app's ⚙️ Settings panel (changes persist back to `.env`).
+>
+> Likewise, `data/cellar/inventory.yml` (your personal liquor stock) is gitignored — copy `data/cellar/inventory.example.yml` to start your own. The bartender's memory under `data/memory/` and AI-generated signatures are also gitignored as personal data.
+
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `LLM_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible endpoint |

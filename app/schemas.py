@@ -16,6 +16,30 @@ class Ingredient(BaseModel):
     item: str = ""
 
 
+class IngredientAvailability(BaseModel):
+    raw_item: str = ""
+    amount: str = ""
+    status: str = "unknown"  # available | substitutable | missing | unknown
+    required: bool = True
+    role: str = "ingredient"
+    ingredient_id: str | None = None
+    name: str = ""
+    substitute_id: str | None = None
+    substitute_name: str | None = None
+    substitute_confidence: str | None = None
+    substitute_impact: str | None = None
+
+
+class Availability(BaseModel):
+    status: str = "unknown"  # available | substitutable | missing | unknown
+    summary: str = ""
+    details: list[IngredientAvailability] = Field(default_factory=list)
+    missing: list[str] = Field(default_factory=list)
+    non_blocking_missing: list[str] = Field(default_factory=list)
+    substitutions: list[IngredientAvailability] = Field(default_factory=list)
+    unknown: list[str] = Field(default_factory=list)
+
+
 class RecipeSummary(BaseModel):
     """Lightweight view used by the grid/list endpoint."""
 
@@ -30,6 +54,7 @@ class RecipeSummary(BaseModel):
     tags: list[str] = Field(default_factory=list)
     blurb: str = ""
     mood: str = ""
+    availability: Availability | None = None
 
 
 class Recipe(RecipeSummary):
@@ -55,6 +80,7 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[ChatMessage]
+    context_summary: str = ""
 
 
 class RecipePayload(BaseModel):
@@ -75,3 +101,24 @@ class RecipePayload(BaseModel):
     steps: list[str] = Field(default_factory=list)
     bartender_notes: str = ""
     variants: str = ""
+    conversation: list[ChatMessage] = Field(default_factory=list)  # design thread → distilled to memory
+
+
+class LLMConfigRequest(BaseModel):
+    """Optional partial LLM config for the Settings UI (test / save)."""
+
+    base_url: Optional[str] = None
+    api_key: Optional[str] = None
+    model: Optional[str] = None
+
+
+class CellarInventoryUpdate(BaseModel):
+    ingredient_id: str
+    status: str
+    note: str = ""
+
+
+class CellarIngredientCreate(BaseModel):
+    name: str
+    category: str = "liqueur"
+    status: str = "in_stock"

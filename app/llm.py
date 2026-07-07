@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from typing import AsyncIterator
 
 from openai import AsyncOpenAI
@@ -31,6 +32,25 @@ def client() -> AsyncOpenAI:
 
 def configured() -> bool:
     return settings.llm_configured
+
+
+def reset_client() -> None:
+    """Drop the cached client so the next call picks up new config."""
+    global _client
+    _client = None
+
+
+def _clean_error(exc: Exception) -> str:
+    """Reduce an OpenAI/HTTP exception to a short, readable message for the UI."""
+    msg = getattr(exc, "message", None) or str(exc)
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict):
+        inner = body.get("message") or body.get("error")
+        if isinstance(inner, str) and inner:
+            msg = inner
+        elif isinstance(inner, dict) and inner.get("message"):
+            msg = str(inner["message"])
+    return msg.strip()[:400] or str(exc)
 
 
 # --------------------------------------------------------------------------- #
@@ -66,6 +86,30 @@ Every classic/mocktail in the knowledge base has a `mood:` tag. When a guest des
 feeling, first match it to an existing drink ("for that mood, we happen to have…"); when \
 designing new, make the new drink's `story` clearly echo that mood.
 
+## 短期记忆 / Memory
+你会看到「短期记忆」一栏——里面是你和这位客人过往的记录（ta 喝过什么、偏好、聊过的故事）。\
+**自然地用上它**：可以提"上次那杯…"、"记得你偏好苦味"等，但别生硬复述。
+You'll see a "Short-term memory" section — notes from past visits with this guest \
+(what they've had, preferences, stories). Use it naturally ("last time you had…", \
+"remembering you like bitter"), without reciting it verbatim.
+
+## 设计要「站在真实配方上」/ Design from real recipes, don't freestyle
+设计特调时，**优先改编**「相关参考」里按客人描述匹配到的真实配方（结构、比例、技法），\
+而不是凭空捏造。可以在对话里说明你借用了哪杯的骨架、做了什么调整。这让新酒更可复现、更平衡。
+When designing, **adapt from** the real recipes in "Relevant references" (structure, ratios, \
+technique) rather than inventing from nothing. Say which you borrowed a skeleton from and \
+what you changed — this keeps new drinks reproducible and balanced.
+
+## 当前酒库优先 / Respect the current cellar
+你会看到「当前酒库」一栏。设计特调和回答“我现在能调什么”时，**优先使用当前拥有的材料**。\
+杯子不算库存；冰块和水默认可用。若某个关键材料缺失，不要假装它存在：先说明缺什么，再给出\
+已有材料内的替代方向。最终完整配方默认只使用当前拥有的材料，除非客人明确接受采购或替代。
+You'll see a "Current cellar" section. When designing signatures or answering what can be \
+made now, **prioritize in-stock ingredients**. Glassware is not inventory; ice and water are \
+assumed available. If a key ingredient is missing, say so and suggest an in-cellar substitute. \
+Final recipes should use in-stock ingredients unless the guest explicitly accepts buying or \
+substituting something.
+
 ## 风格 / Style
 - 像吧台对面的人在聊天：自然、有温度、不啰嗦。Like talking across the bar: natural, warm, concise.
 - 用客人使用的语言回复（中文问就中文答，英文问就英文答）。Reply in the guest's language.
@@ -75,8 +119,20 @@ designing new, make the new drink's `story` clearly echo that mood.
 或危险饮法。
 
 ## 当要给出一杯完整配方时 / When you commit to a recipe
-当讨论成熟、或客人明确说「给我配方 / give me the recipe」时，**先**用 1–2 句话讲设计理念，\
-**然后**输出一个独立的 ```json 代码块，严格遵循下面的 schema（必须包含这些键）：
+当讨论成熟、或客人明确说「给我配方 / give me the recipe」时：
+
+1. **先用自然语言铺垫**（这是客人唯一会看到的对话部分）：像真实调酒师那样说一句\
+"让我想想……"+ 你的思路，例如"让我想想……午后慵懒、想喝点复杂但不甜的，我用 Virgin Mary \
+的咸鲜骨架，再加一点黄瓜的清凉……配方是这样：". 不要直接吐出 json。
+2. **然后**紧跟一个独立的 ```json 代码块——这块**不会**展示给客人（前端会把它渲染成一张\
+配方卡），所以 json 里只放结构化数据，不要写闲聊。
+
+When finalizing:
+1. **Lead with natural language** (the only part the guest sees streamed): say something like \
+"Let me think… for a tired evening I'll borrow the soothing vanilla-oak of an Old Fashioned \
+and lighten it… here it is:" — never dump JSON raw.
+2. **Then** a single ```json block — the UI hides it and renders a recipe card, so put only \
+structured data inside, no chat.
 
 ```json
 {
@@ -97,11 +153,12 @@ designing new, make the new drink's `story` clearly echo that mood.
 }
 ```
 
-注意：
+注意 / Notes:
 - `ingredients` 至少 3 项；`steps` 是完整的、可执行的步骤；`story` 要呼应客人给的故事/心情。
 - `flavor` 与 `mood` 是字符串（不是数组），尽量像知识库里 `风味特征`/`情绪特征` 那样写得具体、有画面。
-- 这块 json 是给前端渲染成「配方卡」的，**只**在最终敲定时输出一次，聊天过程中不要反复输出。
-- json 之外，正常用自然语言和客人对话。
+- 最终配方应优先使用「当前酒库」中已有材料；若使用替代项，在 `bartender_notes` 里写清楚原材料、替代材料和风味影响。
+- 这块 json **只**在最终敲定时输出一次；聊天过程中不要输出 json。
+- 自然语言铺垫 + json，是一次性发出的（铺垫在前、json 在后）。
 """
 
 
@@ -132,6 +189,63 @@ async def chat_stream(history: list[dict], context: str) -> AsyncIterator[str]:
 
 
 # --------------------------------------------------------------------------- #
+# Memory helpers (cheap, non-streaming calls)
+# --------------------------------------------------------------------------- #
+
+async def extract_memory_delta(history: list[dict]) -> str:
+    """Extract at most one durable memory note from the latest exchange.
+
+    Returns a short Chinese sentence, or "" if nothing worth remembering.
+    """
+    recent = [m for m in history if m.get("role") in ("user", "assistant")][-6:]
+    if not recent:
+        return ""
+    convo = "\n".join(f"{m['role']}: {m['content']}" for m in recent)
+    messages = [
+        {"role": "system", "content": (
+            "你是一个记忆助手。读取最近一段调酒师与客人的对话，提炼**最多 1 条**值得长期记住的"
+            "事实（例如：客人喝过/点过哪杯、口味偏好、忌口、情绪或故事背景、喜欢的风格）。"
+            "用一句简短中文输出，开头不要加前缀。如果没有任何值得记住的内容，只输出英文单词 NONE。"
+            "不要输出任何解释或多余文字。"
+        )},
+        {"role": "user", "content": convo},
+    ]
+    try:
+        resp = await client().chat.completions.create(
+            model=settings.llm_model, messages=messages, temperature=0, max_tokens=80
+        )
+        text = (resp.choices[0].message.content or "").strip()
+    except Exception:  # noqa: BLE001 — memory is best-effort
+        return ""
+    if not text or text.upper().startswith("NONE"):
+        return ""
+    return text
+
+
+async def distill_conversation(history: list[dict], drink_name: str) -> str:
+    """Distill a design thread into a short narrative memory for the saved drink."""
+    convo = "\n".join(
+        f"{m['role']}: {m['content']}" for m in history
+        if m.get("role") in ("user", "assistant") and m.get("content")
+    )
+    messages = [
+        {"role": "system", "content": (
+            "你是一个记忆助手。下面是调酒师与客人共同设计一杯特调的对话，最终酒款名为"
+            f"「{drink_name}」。请把它提炼成 2–4 句中文叙事，记录：客人最初的需求/心情、"
+            "你们讨论的方向与取舍、最终为什么这样配。只输出叙事本身，不要标题、不要 json。"
+        )},
+        {"role": "user", "content": convo[:6000]},
+    ]
+    try:
+        resp = await client().chat.completions.create(
+            model=settings.llm_model, messages=messages, temperature=0.3, max_tokens=260
+        )
+        return (resp.choices[0].message.content or "").strip()
+    except Exception as exc:  # noqa: BLE001
+        return f"（对话摘要失败：{str(exc)[:80]}）"
+
+
+# --------------------------------------------------------------------------- #
 # Recipe extraction (the model emits a ```json block when finalizing)
 # --------------------------------------------------------------------------- #
 
@@ -153,3 +267,47 @@ def extract_recipe(text: str) -> dict | None:
         if isinstance(data, dict) and ("ingredients" in data or "steps" in data):
             return data
     return None
+
+
+# --------------------------------------------------------------------------- #
+# Connection test (Settings → Test button)
+# --------------------------------------------------------------------------- #
+
+async def test_llm(
+    base_url: str | None = None,
+    api_key: str | None = None,
+    model: str | None = None,
+) -> dict:
+    """Make a tiny chat completion to validate URL/key/model. Never raises.
+
+    Empty ``api_key`` falls back to the currently stored key, so a user can
+    test before re-entering it.
+    """
+    burl = (base_url or settings.llm_base_url).strip()
+    key = (api_key and api_key.strip()) or settings.llm_api_key
+    mdl = (model or settings.llm_model).strip()
+
+    if not burl:
+        return {"ok": False, "error": "Base URL is empty."}
+    if not key or key.startswith("sk-your"):
+        return {"ok": False, "error": "No API key set. Enter one and try again."}
+    if not mdl:
+        return {"ok": False, "error": "Model is empty."}
+
+    start = time.monotonic()
+    try:
+        client = AsyncOpenAI(base_url=burl, api_key=key)
+        resp = await client.chat.completions.create(
+            model=mdl,
+            messages=[{"role": "user", "content": "ping"}],
+            max_tokens=3,
+            temperature=0,
+        )
+        latency = int((time.monotonic() - start) * 1000)
+        reply = ""
+        if resp.choices:
+            reply = (resp.choices[0].message.content or "").strip()
+        return {"ok": True, "latency_ms": latency, "model": mdl, "base_url": burl, "reply": reply}
+    except Exception as exc:  # noqa: BLE001 — surface a friendly message
+        latency = int((time.monotonic() - start) * 1000)
+        return {"ok": False, "error": _clean_error(exc), "latency_ms": latency, "model": mdl, "base_url": burl}

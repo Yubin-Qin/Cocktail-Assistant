@@ -197,6 +197,17 @@ def _split_title(title: str) -> LocalizedName:
 
 
 # --------------------------------------------------------------------------- #
+# Retrieval (mood/flavor keyword matching for grounded design)
+# --------------------------------------------------------------------------- #
+
+def _bigrams(s: str) -> set[str]:
+    s = re.sub(r"\s+", "", s)
+    if len(s) < 2:
+        return {s} if s else set()
+    return {s[i:i + 2] for i in range(len(s) - 1)}
+
+
+# --------------------------------------------------------------------------- #
 # Frontmatter coercion (Format A)
 # --------------------------------------------------------------------------- #
 
@@ -401,7 +412,42 @@ class KnowledgeBase:
             bits.append(f" | mood: {r.mood[:40]}")
         return "".join(bits)
 
-    def build_chat_context(self) -> str:
+    def _match_text(self, r: Recipe) -> str:
+        return " ".join(filter(None, [
+            r.name.zh, r.name.en, r.mood, r.flavor_text,
+            r.base, " ".join(r.flavor), " ".join(r.tags), r.blurb,
+        ])).lower()
+
+    @staticmethod
+    def _score(recipe_text: str, recipe_flavor: list[str], query: str) -> int:
+        score = 0
+        # English flavor tags appearing in the query (strong signal)
+        for tag in recipe_flavor:
+            if tag and tag.lower() in query:
+                score += 3
+        # shared character bigrams (handles Chinese mood/flavor phrasing)
+        score += len(_bigrams(query) & _bigrams(recipe_text))
+        return score
+
+    def retrieve(self, query: str, top_k: int = 6) -> list[Recipe]:
+        """Return the most mood/flavor-relevant recipes for a user message."""
+        q = (query or "").strip().lower()
+        if not q:
+            return []
+        scored: list[tuple[int, Recipe]] = []
+        for r in self.recipes.values():
+            s = self._score(self._match_text(r), r.flavor, q)
+            if s > 0:
+                scored.append((s, r))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [r for _, r in scored[:top_k]]
+
+    def build_chat_context(
+        self,
+        query: str | None = None,
+        rolling_memory: str = "",
+        conversations: str = "",
+    ) -> str:
         signatures = list(self.by_type("signature"))
         classics = list(self.by_type("classic"))
         mocktails = list(self.by_type("mocktail"))
@@ -412,15 +458,38 @@ class KnowledgeBase:
             parts.append("\n## 吧台基础与原则 / Bar fundamentals & principles\n"
                          + self.principles.strip() + "\n")
 
+        if rolling_memory.strip():
+            parts.append("\n## 短期记忆 / Short-term memory (what you remember about this guest)\n"
+                         + rolling_memory.strip() + "\n")
+
+        if conversations.strip():
+            parts.append("\n## 过往设计记忆 / Past design sessions\n"
+                         + conversations.strip() + "\n")
+
         parts.append(
             "\n## 本店特调 — 风格参考与范例 / House Signatures (style reference & examples)\n"
-            "These define the bar's house style and the expected output format. "
-            "Study their balance, naming, and bartender notes.\n"
+            "Use these only as a light style index. Do not copy their names, stories, "
+            "ratios, or ingredient combinations too closely.\n"
         )
-        for r in signatures[:6]:
-            parts.append(f"\n### {r.name.en} / {r.name.zh}\n{r.body_markdown}\n")
+        for r in signatures:
+            parts.append(self._compact(r))
         if not signatures:
             parts.append("(no signatures yet)\n")
+
+        if query:
+            refs = self.retrieve(query, top_k=4)
+            if refs:
+                parts.append(
+                    "\n## 相关参考 — 按客人此刻的描述匹配 / Relevant references "
+                    "(matched to what the guest said right now)\n"
+                    "When designing, adapt structure and technique from classics/mocktails first. "
+                    "If a matched reference is a house signature, treat it as a light style cue only.\n"
+                )
+                for r in refs:
+                    if r.type == "signature":
+                        parts.append(self._compact(r))
+                    else:
+                        parts.append(f"\n### {r.name.en} / {r.name.zh}\n{r.body_markdown}\n")
 
         parts.append("\n## 经典鸡尾酒索引 / Classic cocktails (compact index)\n")
         for r in classics:

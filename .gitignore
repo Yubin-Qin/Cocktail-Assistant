@@ -1,37 +1,87 @@
-# --- Python ---
+# ===========================================================================
+# Cocktail app — .gitignore
+# ===========================================================================
+
+# --- Secrets -------------------------------------------------------------
+# .env holds the real LLM API key and is NEVER committed.
+# .env.example is the tracked template — copy it to .env and fill in your key.
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+
+# --- Python --------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+*.egg
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+build/
+dist/
+sdist/
+wheels/
+develop-eggs/
+parts/
+.installed.cfg
+MANIFEST
+
+# Virtual environments (the app's ./venv lives here; never commit it)
 venv/
 .venv/
 env/
 ENV/
 pythonenv*
-build/
-dist/
-*.egg-info/
-.eggs/
-pip-wheel-metadata/
 
-# --- Environment / secrets ---
-.env
-.env.local
-.env.*.local
+# --- Test / type / lint caches (none configured yet, but keep them out) --
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
 
-# --- Editor / OS ---
+# --- Editor / IDE --------------------------------------------------------
 .DS_Store
+.DS_Store?
+._*
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+*.sublime-workspace
+*.sublime-project
 
-# --- Logs ---
+# --- OS junk -------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# --- Logs ----------------------------------------------------------------
 *.log
 logs/
 
-# --- App runtime ---
-# Saved signature recipes live under data/cocktails/signatures/ and ARE tracked
-# (they are part of the knowledge base). Nothing to ignore there by default.
+# --- App runtime / personal data -----------------------------------------
+# The bartender's memory of your conversations (rolling notes + distilled
+# design threads). Personal — never publish.
+data/memory/
+
+# Your personal liquor inventory. Copy inventory.example.yml → inventory.yml
+# to start your own. (ingredients.yml + substitutions.yml ARE tracked as app data.)
+data/cellar/inventory.yml
+
+# AI-generated signature drinks (personal designs from the bartender chat).
+# The 3 curated seed examples were committed before this rule and stay tracked:
+#   sunset-on-the-bund, midnight-library, smoke-and-honey
+# To publish a new curated signature, force-add it:
+#   git add -f data/cocktails/signatures/your-drink.md
+data/cocktails/signatures/

@@ -133,6 +133,7 @@ def save_signature(payload: RecipePayload) -> tuple[str, Path]:
         candidate = f"{slug}-{n}"
         n += 1
     slug = candidate
+    markdown = re.sub(r"^slug:\s*.*$", f"slug: {slug}", markdown, count=1, flags=re.MULTILINE)
 
     path = target_dir / f"{slug}.md"
     path.write_text(markdown, encoding="utf-8")

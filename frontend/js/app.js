@@ -11,10 +11,12 @@ const I18N = {
     recipesTitle: "鸡尾酒配方",
     recipesSub: "经典、特调与无酒精 — 点开任意一杯查看完整做法。",
     all: "全部", classic: "经典", signature: "特调", mocktail: "无酒精",
+    availabilityAll: "全部库存状态", availableNow: "现在可调", substitutableNow: "可替代可调", missingKey: "缺关键材料",
     searchPh: "按名字、基酒、风味搜索…",
     composerPh: "和调酒师聊聊你的故事、心情，或问个调酒问题…",
     welcome: "晚上好 🌆 我是你的调酒师。想喝点什么？可以告诉我今晚的故事和心情，我来为你量身定制一杯；也可以问我任何关于调酒的问题。",
     save: "💾 存为 .md", saved: "已保存", viewInMenu: "在菜单中查看",
+    viewDetails: "查看详情",
     ingredients: "配方 Ingredients", steps: "步骤 Steps",
     story: "故事 Story", notes: "调酒师笔记 Bartender Notes", variants: "变体 Variations",
     flavor: "风味", mood: "情绪",
@@ -22,6 +24,27 @@ const I18N = {
     noResults: "没有找到匹配的配方", loading: "加载中…",
     base: "基酒", glass: "杯型", abv: "酒精度", difficulty: "难度",
     chatError: "出错了，请稍后重试",
+    settings: "设置", llmHint: "OpenAI 兼容接口。修改会保存到 .env 并立即生效；密钥仅保存在本地服务器。",
+    baseUrl: "接口地址", apiKey: "API 密钥", model: "模型",
+    test: "测试", save: "保存", testing: "测试中…",
+    testOk: "✓ 连接成功", testFail: "✗ 测试失败",
+    cfgSaved: "✓ 已保存并生效", keySet: "已设置，输入新值以更换", keyEmpty: "尚未设置密钥",
+    preparing: "正在生成特调……",
+    memoryTitle: "调酒师记忆", memoryHint: "调酒师会记住你们聊过的内容（喝过什么、偏好、故事）。保存的特调会留下设计对话，直到你删除该特调。",
+    clearMemory: "清空记忆", clearMemoryConfirm: "确定清空调酒师的所有记忆吗？已保存的特调配方不会被删除，但它们的设计对话会被清除。",
+    memoryCleared: "✓ 记忆已清空",
+    deleteSig: "删除这款特调", deleteConfirm: "确定删除这杯特调吗？配方和它的设计对话都会被移除（经典/无酒精配方不可删除）。",
+    deleted: "✓ 已删除",
+    cellarTitle: "我的酒库", cellarHint: "酒库会影响经典鸡尾酒筛选，也会约束调酒师设计特调。杯子不算库存；冰块和水默认可用。",
+    cellarSearchPh: "搜索材料…", cellarSaved: "✓ 酒库已更新",
+    addIngredient: "添加", addIngredientPh: "添加材料，如 接骨木花利口酒",
+    ingredientAdded: "✓ 已加入酒库",
+    catLiqueur: "利口酒", catBaseSpirit: "基酒", catBitter: "苦味利口酒", catFortified: "加强葡萄酒",
+    catBitters: "苦精", catSweetener: "甜味材料", catCitrus: "柑橘", catJuice: "果汁",
+    catMixer: "软饮/气泡", catHerb: "香草", catGarnish: "装饰",
+    inStock: "有", lowStock: "少量", missingStock: "没有", ignoredStock: "忽略",
+    availability: "可调性", available: "可调", substitutable: "可替代", missing: "缺材料", unknown: "待确认",
+    substitute: "替代",
   },
   en: {
     appTitle: "Cocktail",
@@ -29,10 +52,12 @@ const I18N = {
     recipesTitle: "Cocktail Recipes",
     recipesSub: "Classics, signatures & mocktails — tap any card for the full method.",
     all: "All", classic: "Classic", signature: "Signature", mocktail: "Mocktail",
+    availabilityAll: "All stock states", availableNow: "Available now", substitutableNow: "With substitute", missingKey: "Missing key",
     searchPh: "Search by name, base, flavor…",
     composerPh: "Tell the bartender your story, mood, or ask a question…",
     welcome: "Good evening 🌆 I'm your bartender. What are you in the mood for? Tell me your story or mood tonight and I'll craft something just for you — or ask me anything about cocktails.",
     save: "💾 Save as .md", saved: "Saved", viewInMenu: "View in menu",
+    viewDetails: "Details",
     ingredients: "Ingredients", steps: "Steps",
     story: "Story", notes: "Bartender Notes", variants: "Variations",
     flavor: "Flavor", mood: "Mood",
@@ -40,6 +65,27 @@ const I18N = {
     noResults: "No matching recipes", loading: "Loading…",
     base: "Base", glass: "Glass", abv: "ABV", difficulty: "Difficulty",
     chatError: "Something went wrong, please retry",
+    settings: "Settings", llmHint: "OpenAI-compatible. Changes save to .env and take effect immediately. The key is stored locally only.",
+    baseUrl: "Base URL", apiKey: "API Key", model: "Model",
+    test: "Test", save: "Save", testing: "Testing…",
+    testOk: "✓ Connected", testFail: "✗ Test failed",
+    cfgSaved: "✓ Saved & active", keySet: "set — enter a new value to change", keyEmpty: "No key set",
+    preparing: "Generating the recipe…",
+    memoryTitle: "Bartender memory", memoryHint: "The bartender remembers what you've talked about (what you've had, preferences, stories). Saved signatures keep their design conversation until you delete that signature.",
+    clearMemory: "Clear memory", clearMemoryConfirm: "Clear all bartender memory? Saved signatures won't be deleted, but their design conversations will be erased.",
+    memoryCleared: "✓ Memory cleared",
+    deleteSig: "Delete this signature", deleteConfirm: "Delete this signature? The recipe and its design conversation will be removed (classics/mocktails can't be deleted here).",
+    deleted: "✓ Deleted",
+    cellarTitle: "My cellar", cellarHint: "Your cellar powers recipe availability filters and constrains the bartender's custom designs. Glassware is not inventory; ice and water are assumed available.",
+    cellarSearchPh: "Search ingredients…", cellarSaved: "✓ Cellar updated",
+    addIngredient: "Add", addIngredientPh: "Add ingredient, e.g. Elderflower liqueur",
+    ingredientAdded: "✓ Added to cellar",
+    catLiqueur: "Liqueur", catBaseSpirit: "Base spirit", catBitter: "Bitter liqueur", catFortified: "Fortified wine",
+    catBitters: "Bitters", catSweetener: "Sweetener", catCitrus: "Citrus", catJuice: "Juice",
+    catMixer: "Mixer", catHerb: "Herb", catGarnish: "Garnish",
+    inStock: "Have", lowStock: "Low", missingStock: "Missing", ignoredStock: "Ignore",
+    availability: "Availability", available: "Available", substitutable: "Substitute", missing: "Missing", unknown: "Check",
+    substitute: "Substitute",
   },
 };
 
@@ -58,14 +104,61 @@ const QUICK = {
   ],
 };
 
+const QUICK_POOL = {
+  zh: {
+    flavors: ["清爽一点", "不太甜", "苦甜", "微酸", "花香", "草本", "烟熏", "低酒精", "烈一点", "适合餐前", "适合夜晚", "有气泡"],
+    feelings: ["有点累", "很开心", "有点烦", "有点热", "有点冷", "有点焦虑", "很放松", "想庆祝", "没什么胃口", "想安静一点"],
+    bases: ["琴酒", "威士忌", "朗姆", "伏特加", "龙舌兰", "接骨木花利口酒", "咖啡利口酒", "无酒精基底"],
+    scenes: ["看电影", "晚饭后", "朋友来家里", "周末下午", "睡前小酌", "餐前开胃", "夏天晚上", "一个人安静喝"],
+  },
+  en: {
+    flavors: ["fresh", "not too sweet", "bittersweet", "slightly sour", "floral", "herbal", "smoky", "low ABV", "strong", "aperitif-style", "nightcap-ish", "sparkling"],
+    feelings: ["I'm tired", "I want to celebrate", "I want to relax", "I want something bright", "I want a ritual", "I want to sip slowly", "I don't want to get drunk", "I want something unusual", "it's hot today", "it's cold tonight"],
+    bases: ["gin", "whisky", "rum", "vodka", "tequila", "elderflower liqueur", "coffee liqueur", "zero-proof"],
+    scenes: ["movie night", "after dinner", "friends at home", "weekend afternoon", "a quiet nightcap", "before dinner", "a summer evening", "drinking alone quietly"],
+  },
+};
+
+const QUICK_SENTENCE_TEMPLATES = {
+  zh: [
+    "给我来一杯{flavor}的",
+    "今天{feeling}，有什么推荐",
+    "用{base}给我做一杯",
+    "适合{scene}的酒有什么",
+    "我想喝一杯{flavor}的特调",
+    "基于我的酒库，做一杯{flavor}的酒",
+    "今天{feeling}，想喝点{flavor}的酒",
+    "{scene}，来一杯什么好",
+    "用{base}做一杯简单的酒",
+    "给我一杯适合{scene}的特调",
+  ],
+  en: [
+    "Make me something {flavor}",
+    "{feeling}. What do you recommend?",
+    "Build me a drink with {base}",
+    "What works for {scene}?",
+    "I want a {flavor} signature",
+    "Use my cellar for something {flavor}",
+    "{feeling}, something {flavor}",
+    "What should I drink for {scene}?",
+    "Make a simple {base} drink",
+    "A signature for {scene}",
+  ],
+};
+
+const RECENT_HISTORY_LIMIT = 10;
+
 /* ----------------------------- state ----------------------------------- */
 const state = {
   lang: localStorage.getItem("cocktail.lang") || "zh",
   view: "recipes",
   filter: "all",
+  availabilityFilter: "all",
   query: "",
   recipes: [],
   info: null,
+  cellar: null,
+  cellarQuery: "",
   chat: [],          // {role, text, recipe?}
   streaming: false,
 };
@@ -79,8 +172,10 @@ const nameOf = (n) => (n && (n[state.lang] || n.en || n.zh)) || "—";
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
+  document.body.dataset.view = state.view;
   applyLang();
   bindChrome();
+  bindSettings();
   moveSegThumb();
   await Promise.all([loadInfo(), loadRecipes()]);
   renderGrid();
@@ -96,12 +191,21 @@ function bindChrome() {
   );
   // language toggle
   $("#langToggle").addEventListener("click", toggleLang);
-  // filters
-  $$(".chip").forEach((chip) =>
+  // recipe type filters
+  $$("#filterChips .chip").forEach((chip) =>
     chip.addEventListener("click", () => {
-      $$(".chip").forEach((c) => c.classList.remove("active"));
+      $$("#filterChips .chip").forEach((c) => c.classList.remove("active"));
       chip.classList.add("active");
       state.filter = chip.dataset.filter;
+      renderGrid();
+    })
+  );
+  // availability filters
+  $$("#availabilityChips .chip").forEach((chip) =>
+    chip.addEventListener("click", () => {
+      $$("#availabilityChips .chip").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      state.availabilityFilter = chip.dataset.availability;
       renderGrid();
     })
   );
@@ -116,7 +220,9 @@ function bindChrome() {
     if (e.target.id === "sheetOverlay") closeSheet();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeSheet();
+    if (e.key !== "Escape") return;
+    if (!$("#settingsOverlay").hidden) closeSettings();
+    else closeSheet();
   });
   // composer
   const input = $("#chatInput");
@@ -149,6 +255,7 @@ function toggleLang() {
   localStorage.setItem("cocktail.lang", state.lang);
   applyLang();
   renderGrid();
+  renderCellar();
   renderQuickPrompts();
   initChat(true);
 }
@@ -156,6 +263,7 @@ function toggleLang() {
 /* ----------------------------- views ----------------------------------- */
 function switchView(view) {
   state.view = view;
+  document.body.dataset.view = view;
   $$(".seg-btn").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   $$(".view").forEach((v) => v.classList.remove("active"));
   $("#view-" + view).classList.add("active");
@@ -205,6 +313,9 @@ function renderGrid() {
   const empty = $("#recipeEmpty");
   let items = state.recipes;
   if (state.filter !== "all") items = items.filter((r) => r.type === state.filter);
+  if (state.availabilityFilter !== "all") {
+    items = items.filter((r) => r.availability && r.availability.status === state.availabilityFilter);
+  }
   if (state.query) {
     items = items.filter((r) => {
       const hay = [
@@ -226,6 +337,7 @@ function renderGrid() {
     .map((r) => {
       const emoji = emojiFor(r);
       const typeLabel = t(r.type);
+      const av = availabilityBadge(r.availability);
       const tags = (r.flavor || []).slice(0, 3).map((x) => `<span class="tag">${escapeHtml(x)}</span>`).join("");
       return `
       <article class="card" data-type="${r.type}" data-slug="${r.slug}">
@@ -234,6 +346,7 @@ function renderGrid() {
           <span class="card-type-pill">${escapeHtml(typeLabel)}</span>
         </div>
         <div class="card-body">
+          ${av}
           <h3 class="card-name">${escapeHtml(nameOf(r.name))}</h3>
           <p class="card-sub">${escapeHtml(r.base)} · ${escapeHtml(r.glass)}${r.abv ? " · " + escapeHtml(r.abv) : ""}</p>
           ${r.blurb ? `<p class="card-blurb">${escapeHtml(r.blurb)}</p>` : ""}
@@ -246,6 +359,12 @@ function renderGrid() {
   $$(".card").forEach((card) =>
     card.addEventListener("click", () => openRecipe(card.dataset.slug))
   );
+}
+
+function availabilityBadge(av) {
+  if (!av) return "";
+  const label = t(av.status);
+  return `<span class="availability-badge ${escapeHtml(av.status)}">${escapeHtml(label)}</span>`;
 }
 
 function emojiFor(r) {
@@ -287,6 +406,7 @@ function renderSheet(r) {
     r.abv && metaPill(t("abv"), r.abv),
     r.difficulty && metaPill(t("difficulty"), r.difficulty),
   ].filter(Boolean).join("");
+  const availability = renderAvailabilityPanel(r.availability);
 
   $("#sheetContent").innerHTML = `
     <div class="sheet-hero" style="background:linear-gradient(135deg, ${heroColors(r.type)})">
@@ -297,6 +417,7 @@ function renderSheet(r) {
       ${r.mood ? `<p class="sheet-mood">“${escapeHtml(r.mood)}”</p>` : ""}
     </div>
     <div class="sheet-body">
+      ${availability}
       ${section("story", prose(r.story))}
       ${r.flavor_text ? section("flavor", `<div class="note-card">${inline(r.flavor_text)}</div>`) : ""}
       <div class="sheet-section">
@@ -306,7 +427,46 @@ function renderSheet(r) {
       ${steps ? `<div class="sheet-section"><h4 class="section-title">${t("steps")}</h4><ol class="steps">${steps}</ol></div>` : ""}
       ${r.notes ? section("notes", `<div class="note-card">${inline(r.notes)}</div>`) : ""}
       ${variants ? section("variants", `<ul class="variant-list">${variants}</ul>`) : ""}
+      ${r.type === "signature" && r.slug
+        ? `<div class="sheet-delete"><button class="btn danger" id="deleteSigBtn">${t("deleteSig")}</button></div>`
+        : ""}
     </div>`;
+
+  const delBtn = $("#deleteSigBtn");
+  if (delBtn) {
+    delBtn.addEventListener("click", () => deleteSignature(r.slug));
+  }
+}
+
+function renderAvailabilityPanel(av) {
+  if (!av) return "";
+  const details = (av.details || []).map((d) => {
+    const sub = d.status === "substitutable"
+      ? `<div class="availability-sub">${t("substitute")}: ${escapeHtml(d.substitute_name || "")}${d.substitute_impact ? " · " + escapeHtml(d.substitute_impact) : ""}</div>`
+      : "";
+    return `
+      <li class="availability-row ${escapeHtml(d.status)}">
+        <span>${availabilityIcon(d.status)}</span>
+        <div>
+          <strong>${escapeHtml(d.name || d.raw_item)}</strong>
+          <em>${escapeHtml(d.amount || "")}${d.required ? "" : " · optional"}</em>
+          ${sub}
+        </div>
+      </li>`;
+  }).join("");
+  return `
+    <div class="availability-panel ${escapeHtml(av.status)}">
+      <div class="availability-head">
+        <span class="availability-badge ${escapeHtml(av.status)}">${escapeHtml(t(av.status))}</span>
+        <strong>${escapeHtml(t("availability"))}</strong>
+      </div>
+      <p>${escapeHtml(av.summary || "")}</p>
+      <ul>${details}</ul>
+    </div>`;
+}
+
+function availabilityIcon(status) {
+  return { available: "✓", substitutable: "~", missing: "!", unknown: "?" }[status] || "?";
 }
 
 function heroColors(type) {
@@ -330,6 +490,19 @@ function closeSheet() {
   document.body.style.overflow = "";
 }
 
+async function deleteSignature(slug) {
+  if (!confirm(t("deleteConfirm"))) return;
+  try {
+    await fetchJSON(`/api/cocktails/${encodeURIComponent(slug)}`, { method: "DELETE" });
+    await loadRecipes();
+    renderGrid();
+    closeSheet();
+    toast(t("deleted"));
+  } catch (e) {
+    toast("⚠️ " + e.message);
+  }
+}
+
 /* ----------------------------- chat ------------------------------------ */
 function initChat(force) {
   if (state.chat.length && !force) return;
@@ -341,23 +514,274 @@ function initChat(force) {
   } else {
     state.chat.forEach((m) => renderMessage(m));
   }
-  if (state.info && !state.info.llm_configured) {
-    let banner = $("#chatConfigBanner");
-    if (!banner) {
-      banner = document.createElement("div");
-      banner.id = "chatConfigBanner";
-      banner.className = "chat-banner";
-      $(".chat-messages").prepend(banner);
+  refreshChatBanner();
+}
+
+function refreshChatBanner() {
+  const configured = state.info && state.info.llm_configured;
+  const existing = $("#chatConfigBanner");
+  if (configured) {
+    if (existing) existing.remove();
+    return;
+  }
+  let banner = existing;
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "chatConfigBanner";
+    banner.className = "chat-banner";
+    $(".chat-messages").prepend(banner);
+  }
+  banner.textContent = t("configWarn");
+}
+
+/* ----------------------------- settings -------------------------------- */
+function bindSettings() {
+  $("#settingsBtn").addEventListener("click", openSettings);
+  $("#settingsClose").addEventListener("click", closeSettings);
+  $("#settingsOverlay").addEventListener("click", (e) => {
+    if (e.target.id === "settingsOverlay") closeSettings();
+  });
+  $("#saveCfgBtn").addEventListener("click", saveSettings);
+  $("#testBtn").addEventListener("click", testLLM);
+  $("#clearMemoryBtn").addEventListener("click", clearMemory);
+  $("#cellarSearch").addEventListener("input", (e) => {
+    state.cellarQuery = e.target.value.toLowerCase().trim();
+    renderCellar();
+  });
+  $("#addIngredientBtn").addEventListener("click", addIngredient);
+  $("#addIngredientName").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addIngredient();
     }
-    banner.textContent = t("configWarn");
+  });
+}
+
+async function openSettings() {
+  $("#settingsOverlay").hidden = false;
+  document.body.style.overflow = "hidden";
+  $("#testResult").hidden = true;
+  $("#cfgApiKey").value = "";
+  try {
+    const cfg = await fetchJSON("/api/llm/config");
+    $("#cfgBaseUrl").value = cfg.base_url || "";
+    $("#cfgModel").value = cfg.model || "";
+    updateKeyHint(cfg.has_key, cfg.key_hint);
+  } catch (e) {
+    /* ignore — fields stay editable */
+  }
+  loadMemoryPreview();
+  loadCellar();
+}
+
+async function loadMemoryPreview() {
+  try {
+    const m = await fetchJSON("/api/memory");
+    const el = $("#memoryPreview");
+    const text = (m.rolling || "").trim();
+    el.textContent = text || (state.lang === "zh" ? "（暂无记忆）" : "(no memory yet)");
+  } catch (e) {
+    /* ignore */
+  }
+}
+
+async function clearMemory() {
+  if (!confirm(t("clearMemoryConfirm"))) return;
+  const btn = $("#clearMemoryBtn");
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "…";
+  try {
+    await fetchJSON("/api/memory/clear", { method: "POST" });
+    await loadMemoryPreview();
+    toast(t("memoryCleared"));
+  } catch (e) {
+    toast("⚠️ " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+}
+
+async function loadCellar() {
+  try {
+    state.cellar = await fetchJSON("/api/cellar");
+    renderCellar();
+  } catch (e) {
+    $("#cellarList").innerHTML = `<div class="settings-hint">⚠️ ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function renderCellar() {
+  const list = $("#cellarList");
+  if (!state.cellar || !list) return;
+  const q = state.cellarQuery;
+  const items = (state.cellar.items || []).filter((item) => {
+    if (!q) return true;
+    return [item.zh, item.en, item.category, item.id].join(" ").toLowerCase().includes(q);
+  });
+  if (!items.length) {
+    list.innerHTML = `<div class="settings-hint">${t("noResults")}</div>`;
+    return;
+  }
+  list.innerHTML = items.map((item) => `
+    <div class="cellar-item" data-id="${escapeHtml(item.id)}">
+      <div class="cellar-main">
+        <strong>${escapeHtml(item.zh || item.en || item.id)}</strong>
+        <span>${escapeHtml(item.en || item.category)}${item.note ? " · " + escapeHtml(item.note) : ""}</span>
+      </div>
+      <div class="cellar-status" role="group" aria-label="${escapeHtml(item.zh || item.en || item.id)}">
+        ${cellarStatusButton(item, "in_stock", t("inStock"))}
+        ${cellarStatusButton(item, "low", t("lowStock"))}
+        ${cellarStatusButton(item, "missing", t("missingStock"))}
+        ${cellarStatusButton(item, "ignored", t("ignoredStock"))}
+      </div>
+    </div>
+  `).join("");
+  $$(".cellar-status button", list).forEach((btn) =>
+    btn.addEventListener("click", () => updateInventory(btn.closest(".cellar-item").dataset.id, btn.dataset.status))
+  );
+}
+
+function cellarStatusButton(item, status, label) {
+  return `<button class="${item.status === status ? "active" : ""}" data-status="${status}">${escapeHtml(label)}</button>`;
+}
+
+async function updateInventory(ingredientId, status) {
+  try {
+    state.cellar = await fetchJSON("/api/cellar/inventory", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ingredient_id: ingredientId, status }),
+    });
+    await loadRecipes();
+    renderGrid();
+    renderCellar();
+    toast(t("cellarSaved"));
+  } catch (e) {
+    toast("⚠️ " + e.message);
+  }
+}
+
+async function addIngredient() {
+  const input = $("#addIngredientName");
+  const btn = $("#addIngredientBtn");
+  const name = input.value.trim();
+  if (!name) return;
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "…";
+  try {
+    state.cellar = await fetchJSON("/api/cellar/ingredients", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        category: $("#addIngredientCategory").value || "liqueur",
+        status: "in_stock",
+      }),
+    });
+    input.value = "";
+    state.cellarQuery = name.toLowerCase();
+    $("#cellarSearch").value = name;
+    await loadRecipes();
+    renderGrid();
+    renderCellar();
+    toast(t("ingredientAdded"));
+  } catch (e) {
+    toast("⚠️ " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+function updateKeyHint(hasKey, hint) {
+  const ph = $("#cfgApiKey");
+  const hintEl = $("#cfgKeyHint");
+  if (hasKey) {
+    ph.placeholder = t("keySet");
+    hintEl.textContent = `${state.lang === "zh" ? "当前密钥" : "Current key"}: ${hint}`;
   } else {
-    const banner = $("#chatConfigBanner");
-    if (banner) banner.remove();
+    ph.placeholder = "sk-...";
+    hintEl.textContent = t("keyEmpty");
+  }
+}
+
+function closeSettings() {
+  $("#settingsOverlay").hidden = true;
+  if ($("#sheetOverlay").hidden) document.body.style.overflow = "";
+}
+
+async function saveSettings() {
+  const body = {
+    base_url: $("#cfgBaseUrl").value.trim() || null,
+    model: $("#cfgModel").value.trim() || null,
+    api_key: $("#cfgApiKey").value || null, // empty keeps the existing key
+  };
+  const btn = $("#saveCfgBtn");
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "…";
+  try {
+    const r = await fetchJSON("/api/llm/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (state.info) state.info.llm_configured = r.has_key;
+    $("#cfgApiKey").value = "";
+    updateKeyHint(r.has_key, r.key_hint);
+    refreshChatBanner();
+    toast(t("cfgSaved"));
+  } catch (e) {
+    toast("⚠️ " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+}
+
+async function testLLM() {
+  const result = $("#testResult");
+  const btn = $("#testBtn");
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = t("testing");
+  result.hidden = false;
+  result.className = "test-result";
+  result.textContent = t("testing");
+  try {
+    const r = await fetchJSON("/api/llm/test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        base_url: $("#cfgBaseUrl").value.trim() || null,
+        api_key: $("#cfgApiKey").value || null,
+        model: $("#cfgModel").value.trim() || null,
+      }),
+    });
+    if (r.ok) {
+      result.className = "test-result ok";
+      result.textContent =
+        `${t("testOk")} · ${r.model} · ${r.latency_ms}ms` + (r.reply ? ` · "${r.reply}"` : "");
+    } else {
+      result.className = "test-result err";
+      result.textContent = `${t("testFail")}: ${r.error || ""}` + (r.latency_ms ? ` (${r.latency_ms}ms)` : "");
+    }
+  } catch (e) {
+    result.className = "test-result err";
+    result.textContent = `${t("testFail")}: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
   }
 }
 
 function renderQuickPrompts() {
-  $("#quickPrompts").innerHTML = QUICK[state.lang]
+  const prompts = assistantOptionPrompts();
+  const choices = prompts.length ? prompts : randomQuickPrompts();
+  $("#quickPrompts").innerHTML = choices
     .map((q) => `<button class="quick-chip">${escapeHtml(q)}</button>`)
     .join("");
   $$("#quickPrompts .quick-chip").forEach((chip) =>
@@ -367,6 +791,57 @@ function renderQuickPrompts() {
       sendChat();
     })
   );
+}
+
+function assistantOptionPrompts() {
+  const last = [...state.chat].reverse().find((m) => m.role === "bartender" && m.text && !isWelcomeMessage(m));
+  if (!last) return [];
+  const lines = stripJsonForDisplay(last.text).split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+  const out = [];
+  for (const line of lines) {
+    const m = line.match(/^(?:[-*•]|\d+[.)]|[A-Da-d][.)]|方向[一二三四四五六七八]?[:：]?)\s*(.+)$/);
+    if (!m) continue;
+    const short = shortenOption(m[1]);
+    if (short && !out.includes(short)) out.push(short);
+  }
+  return out.length >= 2 ? out.slice(0, 4) : [];
+}
+
+function shortenOption(text) {
+  let s = String(text || "")
+    .replace(/\*\*/g, "")
+    .replace(/^["“'‘]|["”'’]$/g, "")
+    .trim();
+  s = s.split(/[，,。.!！?？；;：:(（]/)[0].trim();
+  s = s.replace(/^(选|要|来点|来杯|一杯)/, "").trim();
+  const chars = Array.from(s);
+  if (!s || chars.length > 8) return "";
+  return s;
+}
+
+function randomQuickPrompts() {
+  const data = QUICK_POOL[state.lang];
+  const templates = QUICK_SENTENCE_TEMPLATES[state.lang];
+  const pool = [];
+  for (const tmpl of templates) {
+    const keys = [...tmpl.matchAll(/\{(\w+)\}/g)].map((m) => m[1]);
+    if (!keys.length) continue;
+    const primary = keys[0];
+    const values = data[primary + "s"] || data[primary] || [];
+    for (const value of values) {
+      pool.push(fillQuickTemplate(tmpl, primary, value, data));
+    }
+  }
+  const shuffled = [...new Set(pool)].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 4);
+}
+
+function fillQuickTemplate(tmpl, primaryKey, primaryValue, data) {
+  return tmpl.replace(/\{(\w+)\}/g, (_, key) => {
+    if (key === primaryKey) return primaryValue;
+    const values = data[key + "s"] || data[key] || [""];
+    return values[Math.floor(Math.random() * values.length)] || "";
+  });
 }
 
 function addMessage(role, text, recipe) {
@@ -381,11 +856,11 @@ function renderMessage(m) {
   const wrap = document.createElement("div");
   wrap.className = `msg ${m.role}`;
   const avatar = m.role === "bartender" ? "🍸" : "🙂";
-  const prose = stripJson(m.text);
+  const prose = compactChatText(stripJson(m.text));
   wrap.innerHTML = `
     <div class="msg-avatar">${avatar}</div>
     <div class="msg-bubble">
-      ${prose ? `<span class="prose">${escapeHtml(prose)}</span>` : ""}
+      ${prose ? `<span class="chat-prose">${escapeHtml(prose)}</span>` : ""}
     </div>`;
   const bubble = $(".msg-bubble", wrap);
   if (m.role === "bartender" && m.recipe) {
@@ -409,48 +884,103 @@ async function sendChat() {
   setSendDisabled(true);
   const phWrap = renderTypingPlaceholder();
 
-  const history = state.chat
-    .filter((m) => m !== phWrap.__msg && m.text)
-    .map((m) => ({ role: m.role, content: stripJson(m.text) }));
+  const payload = buildChatPayload();
 
   let acc = "";
   await streamChat(
-    history,
+    payload,
     (delta) => {
-      if (!phWrap.__typingReplaced) {
-        phWrap.__typingReplaced = true;
-        const bubble = $(".msg-bubble", phWrap);
-        bubble.innerHTML = `<span class="prose"></span>`;
-      }
       acc += delta;
-      $(".prose", phWrap).textContent = stripJson(acc);
+      const prose = compactChatText(stripJsonForDisplay(acc));
+      updateStreamingBubble(phWrap, prose, hasJsonBlock(acc));
       scrollChatToBottom();
     },
     () => {
       // finalize
       const recipe = extractRecipe(acc);
       const bubble = $(".msg-bubble", phWrap);
-      bubble.innerHTML = "";
-      const span = document.createElement("span");
-      span.className = "prose";
-      span.textContent = stripJson(acc);
-      bubble.appendChild(span);
+      updateStreamingBubble(phWrap, compactChatText(stripJson(acc)), false);
       if (recipe) bubble.appendChild(buildRecipeCard(recipe));
       // record into history
       const msg = { role: "bartender", text: acc, recipe: recipe || undefined };
       state.chat.push(msg);
       state.streaming = false;
       setSendDisabled(false);
+      renderQuickPrompts();
       scrollChatToBottom();
     },
     (err) => {
       const bubble = $(".msg-bubble", phWrap);
-      bubble.innerHTML = `<span class="prose" style="color:#c0392b">⚠️ ${escapeHtml(t("chatError"))}: ${escapeHtml(err.message)}</span>`;
+      bubble.innerHTML = `<span class="chat-prose" style="color:#c0392b">⚠️ ${escapeHtml(t("chatError"))}: ${escapeHtml(err.message)}</span>`;
       state.chat.push({ role: "bartender", text: `⚠️ ${t("chatError")}: ${err.message}` });
       state.streaming = false;
       setSendDisabled(false);
+      renderQuickPrompts();
     }
   );
+}
+
+function buildChatPayload() {
+  const entries = state.chat
+    .filter((m) => m.text && !m._placeholder && !isWelcomeMessage(m))
+    .map((m) => ({
+      role: m.role === "bartender" ? "assistant" : "user",
+      content: compactChatText(stripJson(m.text)),
+    }))
+    .filter((m) => (m.role === "user" || m.role === "assistant") && m.content);
+  const recent = entries.slice(-RECENT_HISTORY_LIMIT);
+  const older = entries.slice(0, -RECENT_HISTORY_LIMIT);
+  return {
+    messages: recent,
+    context_summary: summarizeOlderContext(older),
+  };
+}
+
+function summarizeOlderContext(older) {
+  if (!older.length) return "";
+  const userBits = older
+    .filter((m) => m.role === "user")
+    .slice(-5)
+    .map((m) => truncateText(m.content, 80));
+  const assistantBits = older
+    .filter((m) => m.role === "assistant")
+    .slice(-3)
+    .map((m) => truncateText(m.content, 80));
+  const parts = [];
+  if (userBits.length) parts.push(`较早的客人表达：${userBits.join("；")}`);
+  if (assistantBits.length) parts.push(`已聊过的方向：${assistantBits.join("；")}`);
+  return parts.join("\n");
+}
+
+function truncateText(text, max) {
+  const chars = Array.from(String(text || "").replace(/\s+/g, " ").trim());
+  return chars.length > max ? chars.slice(0, max).join("") + "…" : chars.join("");
+}
+
+function isWelcomeMessage(m) {
+  const text = m.text || "";
+  return m.role === "bartender" && (text.includes("我是你的调酒师") || text.includes("I'm your bartender"));
+}
+
+function updateStreamingBubble(wrap, prose, generating) {
+  const bubble = $(".msg-bubble", wrap);
+  let textEl = $(".chat-prose", bubble);
+  if (!textEl) {
+    bubble.innerHTML = "";
+    textEl = document.createElement("span");
+    textEl.className = "chat-prose";
+    bubble.appendChild(textEl);
+  }
+  textEl.textContent = prose || "";
+  let preparing = $(".preparing", bubble);
+  if (generating && !preparing) {
+    preparing = document.createElement("span");
+    preparing.className = "preparing";
+    preparing.textContent = t("preparing");
+    bubble.appendChild(preparing);
+  } else if (!generating && preparing) {
+    preparing.remove();
+  }
 }
 
 function renderTypingPlaceholder() {
@@ -475,12 +1005,12 @@ function scrollChatToBottom() {
 }
 
 /* SSE streaming over fetch */
-async function streamChat(messages, onDelta, onDone, onError) {
+async function streamChat(payload, onDelta, onDone, onError) {
   try {
     const resp = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify(payload),
     });
     if (!resp.ok) throw new Error("HTTP " + resp.status);
     const reader = resp.body.getReader();
@@ -514,19 +1044,96 @@ async function streamChat(messages, onDelta, onDone, onError) {
 
 /* recipe extraction + card */
 function extractRecipe(text) {
-  const re = /```json\s*(\{[\s\S]*?\})\s*```/g;
-  let m, last = null;
-  while ((m = re.exec(text)) !== null) last = m[1];
-  if (!last) return null;
-  try {
-    const data = JSON.parse(last);
-    if (data && (data.ingredients || data.steps)) return data;
-  } catch (e) {}
+  const candidates = [];
+  const fenceRe = /```(?:json)?\s*([\s\S]*?)```/gi;
+  let m;
+  while ((m = fenceRe.exec(text || "")) !== null) {
+    const block = m[1].trim();
+    if (block.startsWith("{")) candidates.push(block);
+  }
+  const rawStart = findRecipePayloadStart(text);
+  if (rawStart >= 0) {
+    const raw = balancedJsonSlice((text || "").slice(rawStart));
+    if (raw) candidates.push(raw);
+  }
+  for (const raw of candidates.reverse()) {
+    try {
+      const data = JSON.parse(raw);
+      if (data && (data.ingredients || data.steps)) return data;
+    } catch (e) {}
+  }
   return null;
 }
 
 function stripJson(text) {
-  return (text || "").replace(/```json\s*\{[\s\S]*?\}\s*```/g, "").trim();
+  text = text || "";
+  return text
+    .replace(/```(?:json)?\s*\{[\s\S]*?\}\s*```/gi, "")
+    .replace(rawRecipeJsonRe(), "")
+    .trim();
+}
+
+function stripJsonForDisplay(text) {
+  text = text || "";
+  const start = findRecipePayloadStart(text);
+  if (start >= 0) return stripJson(text.slice(0, start)).trim();
+  return stripJson(text).trim();
+}
+
+function compactChatText(text) {
+  return String(text || "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line, idx, arr) => line || (idx > 0 && arr[idx - 1]))
+    .join("\n")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
+}
+
+function hasJsonBlock(text) {
+  return findRecipePayloadStart(text) >= 0;
+}
+
+function findRecipePayloadStart(text) {
+  text = text || "";
+  const fenced = text.search(/```(?:json)?\s*[\r\n]*\{/i);
+  const raw = text.search(/(^|\n)\s*\{\s*["']name["']\s*:/i);
+  const starts = [fenced, raw].filter((x) => x >= 0);
+  return starts.length ? Math.min(...starts) : -1;
+}
+
+function balancedJsonSlice(text) {
+  const start = (text || "").indexOf("{");
+  if (start < 0) return "";
+  let depth = 0;
+  let inString = false;
+  let quote = "";
+  let escaped = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === quote) inString = false;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      inString = true;
+      quote = ch;
+      continue;
+    }
+    if (ch === "{") depth += 1;
+    if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return "";
+}
+
+function rawRecipeJsonRe() {
+  return /(^|\n)\s*\{\s*["']name["'][\s\S]*?\}\s*$/i;
 }
 
 function buildRecipeCard(r) {
@@ -535,6 +1142,9 @@ function buildRecipeCard(r) {
   const dispName = typeof r.name === "string" ? r.name : nameOf(r.name);
   const ings = (r.ingredients || [])
     .map((i) => `<div><b style="color:var(--accent)">${escapeHtml(i.amount || "")}</b> ${escapeHtml(i.item || "")}</div>`)
+    .join("");
+  const stepsPreview = (r.steps || []).slice(0, 2)
+    .map((s) => `<li>${escapeHtml(String(s).replace(/^\s*\d+[.)]\s*/, ""))}</li>`)
     .join("");
   const moodLine = r.mood ? `<div class="rcm-mood">“${escapeHtml(r.mood)}”</div>` : "";
   const card = document.createElement("div");
@@ -546,13 +1156,58 @@ function buildRecipeCard(r) {
         <div class="rcm-sub">${escapeHtml(r.base || "")}${r.glass ? " · " + escapeHtml(r.glass) : ""}${r.abv ? " · " + escapeHtml(r.abv) : ""}</div>
       </div>
       ${moodLine}
-      <div class="rcm-body"><div class="rcm-ing">${ings}</div></div>
+      <div class="rcm-body">
+        ${r.story ? `<div class="rcm-story">${escapeHtml(r.story)}</div>` : ""}
+        <div class="rcm-ing">${ings}</div>
+        ${stepsPreview ? `<ol class="rcm-steps">${stepsPreview}</ol>` : ""}
+      </div>
       <div class="rcm-actions">
+        <button class="btn ghost detail-btn">${t("viewDetails")}</button>
         <button class="btn save-btn">${t("save")}</button>
       </div>
     </div>`;
+  $(".detail-btn", card).addEventListener("click", () => openGeneratedRecipe(r));
   $(".save-btn", card).addEventListener("click", () => saveRecipe(r, card));
   return card;
+}
+
+function openGeneratedRecipe(r) {
+  $("#sheetOverlay").hidden = false;
+  document.body.style.overflow = "hidden";
+  renderSheet(recipeFromGenerated(r));
+}
+
+function recipeFromGenerated(r) {
+  const name = typeof r.name === "string" ? { zh: "", en: r.name } : { zh: r.name?.zh || "", en: r.name?.en || "" };
+  return {
+    slug: "",
+    name,
+    type: "signature",
+    source: "generated",
+    base: r.base || "",
+    glass: r.glass || "",
+    garnish: r.garnish || "",
+    abv: r.abv || "",
+    difficulty: "medium",
+    flavor: Array.isArray(r.tags) ? r.tags : [],
+    tags: Array.isArray(r.tags) ? r.tags : [],
+    story: r.story || "",
+    flavor_text: typeof r.flavor === "string" ? r.flavor : "",
+    mood: r.mood || "",
+    ingredients: r.ingredients || [],
+    steps: (r.steps || []).map((s) => String(s).replace(/^\s*\d+[.)]\s*/, "")),
+    notes: r.bartender_notes || r.notes || "",
+    variants: parseVariants(r.variants),
+    body_markdown: "",
+  };
+}
+
+function parseVariants(value) {
+  if (Array.isArray(value)) return value.map(String);
+  return String(value || "")
+    .split(/\r?\n/)
+    .map((v) => v.replace(/^\s*[-*•]\s*/, "").trim())
+    .filter(Boolean);
 }
 
 async function saveRecipe(r, card) {
@@ -577,6 +1232,7 @@ async function saveRecipe(r, card) {
       steps: r.steps || [],
       bartender_notes: r.bartender_notes || "",
       variants: r.variants || "",
+      conversation: state.chat.slice(-20).map((m) => ({ role: m.role, content: stripJson(m.text) })),
     };
     const res = await fetchJSON("/api/recipes/save", {
       method: "POST",

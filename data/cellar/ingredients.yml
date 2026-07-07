@@ -1,0 +1,387 @@
+ingredients:
+- id: gin
+  zh: 琴酒
+  en: Gin
+  category: base_spirit
+  aliases:
+  - 金酒
+  - London Dry Gin
+  - 伦敦干金酒
+  - 干金酒
+- id: rye_whiskey
+  zh: 黑麦威士忌
+  en: Rye whiskey
+  category: base_spirit
+  aliases:
+  - 黑麦
+  - Rye whisky
+- id: bourbon
+  zh: 波本
+  en: Bourbon
+  category: base_spirit
+  aliases:
+  - 波本威士忌
+- id: whisky
+  zh: 威士忌
+  en: Whisky
+  category: base_spirit
+  aliases:
+  - whiskey
+- id: white_rum
+  zh: 白朗姆
+  en: White rum
+  category: base_spirit
+  aliases:
+  - 朗姆
+- id: tequila_blanco
+  zh: 白龙舌兰
+  en: Blanco tequila
+  category: base_spirit
+  aliases:
+  - 龙舌兰 blanco
+  - blanco tequila
+  - 100% agave 龙舌兰
+  - 龙舌兰
+- id: vodka
+  zh: 伏特加
+  en: Vodka
+  category: base_spirit
+- id: cognac
+  zh: 干邑
+  en: Cognac
+  category: base_spirit
+  aliases:
+  - 优质白兰地
+  - 白兰地
+- id: mezcal
+  zh: 梅斯卡尔
+  en: Mezcal
+  category: base_spirit
+  aliases:
+  - Mezcal espadín
+  - 埃斯帕丁梅斯卡尔
+- id: dry_vermouth
+  zh: 干味美思
+  en: Dry vermouth
+  category: fortified_wine
+- id: sweet_vermouth
+  zh: 甜味美思
+  en: Sweet vermouth
+  category: fortified_wine
+- id: sparkling_wine
+  zh: 干型起泡酒
+  en: Dry sparkling wine
+  category: wine
+  aliases:
+  - 香槟
+  - 起泡酒
+- id: campari
+  zh: 金巴利
+  en: Campari
+  category: bitter_liqueur
+- id: aperol
+  zh: 阿佩罗
+  en: Aperol
+  category: bitter_liqueur
+  aliases:
+  - Aperol
+- id: triple_sec
+  zh: 橙味利口酒
+  en: Orange liqueur
+  category: liqueur
+  aliases:
+  - 君度
+  - Cointreau
+  - Triple Sec
+  - 橙酒
+- id: elderflower_liqueur
+  zh: 接骨木花利口酒
+  en: Elderflower liqueur
+  category: liqueur
+  aliases:
+  - St-Germain
+  - 圣日耳曼
+  - 接骨木利口酒
+- id: coffee_liqueur
+  zh: 咖啡利口酒
+  en: Coffee liqueur
+  category: liqueur
+- id: chili_liqueur
+  zh: 辣椒利口酒
+  en: Chili liqueur
+  category: liqueur
+  aliases:
+  - Ancho Reyes
+- id: fernet
+  zh: 费内特苦酒
+  en: Fernet-Branca
+  category: bitter_liqueur
+  aliases:
+  - Fernet
+- id: allspice_dram
+  zh: 多香果利口酒
+  en: Allspice dram
+  category: liqueur
+- id: suze
+  zh: 龙胆草利口酒
+  en: Suze
+  category: bitter_liqueur
+- id: angostura_bitters
+  zh: 安哥斯图拉苦精
+  en: Angostura bitters
+  category: bitters
+  aliases:
+  - 苦精
+- id: orange_bitters
+  zh: 橙味苦精
+  en: Orange bitters
+  category: bitters
+- id: lemon
+  zh: 柠檬
+  en: Lemon
+  category: citrus
+  aliases:
+  - 黄柠檬
+- id: lemon_juice
+  zh: 新鲜柠檬汁
+  en: Fresh lemon juice
+  category: citrus_juice
+  parent: lemon
+  aliases:
+  - 柠檬汁
+- id: lemon_peel
+  zh: 柠檬皮
+  en: Lemon peel
+  category: garnish
+  parent: lemon
+  aliases:
+  - 柠檬片
+  - 柠檬角
+- id: lime
+  zh: 青柠
+  en: Lime
+  category: citrus
+- id: lime_juice
+  zh: 新鲜青柠汁
+  en: Fresh lime juice
+  category: citrus_juice
+  parent: lime
+  aliases:
+  - 青柠汁
+  - 鲜青柠汁
+- id: lime_peel
+  zh: 青柠皮
+  en: Lime peel
+  category: garnish
+  parent: lime
+  aliases:
+  - 青柠角
+  - 青柠轮
+- id: orange
+  zh: 橙子
+  en: Orange
+  category: citrus
+- id: orange_peel
+  zh: 橙皮
+  en: Orange peel
+  category: garnish
+  parent: orange
+  aliases:
+  - 橙片
+- id: grapefruit
+  zh: 葡萄柚
+  en: Grapefruit
+  category: citrus
+  aliases:
+  - 西柚
+- id: grapefruit_juice
+  zh: 葡萄柚汁
+  en: Grapefruit juice
+  category: juice
+  parent: grapefruit
+  aliases:
+  - 鲜红西柚汁
+  - Pink grapefruit juice
+- id: simple_syrup
+  zh: 单糖浆
+  en: Simple syrup
+  category: sweetener
+  aliases:
+  - 糖浆
+- id: sugar
+  zh: 糖
+  en: Sugar
+  category: sweetener
+  aliases:
+  - 方糖
+  - 细砂糖
+  - 糖边
+- id: honey_agave_syrup
+  zh: 蜂蜜龙舌兰糖浆
+  en: Honey-agave syrup
+  category: sweetener
+- id: osmanthus_syrup
+  zh: 桂花糖浆
+  en: Osmanthus syrup
+  category: sweetener
+- id: grenadine
+  zh: 石榴糖浆
+  en: Grenadine
+  category: sweetener
+- id: ginger_syrup
+  zh: 姜糖浆
+  en: Ginger syrup
+  category: sweetener
+- id: soda_water
+  zh: 苏打水
+  en: Soda water
+  category: mixer
+  aliases:
+  - 气泡水
+- id: ginger_beer
+  zh: 姜汁啤酒
+  en: Ginger beer
+  category: mixer
+  aliases:
+  - 姜汁汽水
+- id: cola
+  zh: 可乐
+  en: Cola
+  category: mixer
+- id: lemon_lime_soda
+  zh: 柠檬青柠汽水
+  en: Lemon-lime soda
+  category: mixer
+- id: iced_tea
+  zh: 冰红茶
+  en: Iced tea
+  category: mixer
+  aliases:
+  - 红茶
+  - 冷泡红茶
+- id: lemonade
+  zh: 柠檬水
+  en: Lemonade
+  category: mixer
+- id: tomato_juice
+  zh: 番茄汁
+  en: Tomato juice
+  category: juice
+- id: pineapple_juice
+  zh: 菠萝汁
+  en: Pineapple juice
+  category: juice
+- id: orange_juice
+  zh: 橙汁
+  en: Orange juice
+  category: juice
+- id: cranberry_juice
+  zh: 蔓越莓汁
+  en: Cranberry juice
+  category: juice
+- id: pomegranate_juice
+  zh: 石榴汁
+  en: Pomegranate juice
+  category: juice
+- id: espresso
+  zh: 浓缩咖啡
+  en: Espresso
+  category: coffee
+- id: mint
+  zh: 薄荷
+  en: Mint
+  category: herb
+  aliases:
+  - 新鲜薄荷叶
+  - 薄荷叶
+  - 薄荷枝
+- id: rosemary
+  zh: 迷迭香
+  en: Rosemary
+  category: herb
+- id: cucumber
+  zh: 黄瓜
+  en: Cucumber
+  category: produce
+  aliases:
+  - 黄瓜片
+- id: coconut_milk
+  zh: 椰浆
+  en: Coconut milk
+  category: mixer
+  aliases:
+  - 椰奶
+- id: coconut_syrup
+  zh: 椰子糖浆
+  en: Coconut syrup
+  category: sweetener
+- id: egg_white
+  zh: 蛋清
+  en: Egg white
+  category: texture
+  aliases:
+  - 蛋白
+- id: aquafaba
+  zh: 鹰嘴豆水
+  en: Aquafaba
+  category: texture
+- id: cherry
+  zh: 樱桃
+  en: Cherry
+  category: garnish
+  aliases:
+  - 酒渍樱桃
+  - 糖渍樱桃
+- id: coffee_bean
+  zh: 咖啡豆
+  en: Coffee beans
+  category: garnish
+- id: olive
+  zh: 橄榄
+  en: Olive
+  category: garnish
+- id: salt
+  zh: 盐
+  en: Salt
+  category: seasoning
+  aliases:
+  - 盐边
+  - 芹菜盐
+  - 盐水
+  - Saline solution
+- id: black_pepper
+  zh: 黑胡椒
+  en: Black pepper
+  category: seasoning
+- id: worcestershire
+  zh: 伍斯特辣酱油
+  en: Worcestershire sauce
+  category: seasoning
+- id: hot_sauce
+  zh: 辣椒酱
+  en: Hot sauce
+  category: seasoning
+- id: horseradish
+  zh: 辣根
+  en: Horseradish
+  category: seasoning
+- id: ice
+  zh: 冰块
+  en: Ice
+  category: pantry
+  aliases:
+  - 大冰块
+  - 碎冰
+  - Large clear ice
+  - 大老冰
+- id: water
+  zh: 水
+  en: Water
+  category: pantry
+- id: custom_3c85959ce6
+  zh: 汤力水
+  en: ''
+  category: mixer
+  aliases:
+  - 汤力水
+  custom: true

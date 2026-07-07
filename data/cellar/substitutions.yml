@@ -1,0 +1,40 @@
+substitutions:
+  - missing: rye_whiskey
+    substitute: bourbon
+    confidence: high
+    impact: 波本更甜润、香草感更明显；Manhattan 会少一点辛辣，但结构成立。
+    suitable_for: [manhattan, old-fashioned]
+
+  - missing: bourbon
+    substitute: rye_whiskey
+    confidence: high
+    impact: 黑麦更干、更辛辣；Old Fashioned 和 Manhattan 仍然成立。
+    suitable_for: [manhattan, old-fashioned, whiskey-sour]
+
+  - missing: cognac
+    substitute: bourbon
+    confidence: medium
+    impact: 会从葡萄果香转向谷物、香草和木桶；不再是标准 Sidecar，但酸甜结构可用。
+    suitable_for: [sidecar]
+
+  - missing: campari
+    substitute: aperol
+    confidence: medium
+    impact: 苦度下降、橙香和甜感上升；可做轻盈变体，但不是标准 Negroni。
+    suitable_for: [negroni]
+
+  - missing: sparkling_wine
+    substitute: soda_water
+    confidence: low
+    impact: 酒体和发酵香会变弱，French 75 会变成更清爽的 Collins 风格。
+    suitable_for: [french-75]
+
+  - missing: lime_juice
+    substitute: lemon_juice
+    confidence: low
+    impact: 酸型更尖、更少热带感；酸酒结构仍可成立，但风味明显偏离原版。
+
+  - missing: lemon_juice
+    substitute: lime_juice
+    confidence: low
+    impact: 香气更青、更锐利；酸酒结构仍可成立，但风味明显偏离原版。

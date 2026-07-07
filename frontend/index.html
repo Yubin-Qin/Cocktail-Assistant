@@ -27,6 +27,12 @@
       <button class="lang-toggle" id="langToggle" title="Switch language / 切换语言">
         <span id="langLabel">中文</span>
       </button>
+
+      <button class="icon-btn" id="settingsBtn" title="设置 / Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path fill="currentColor" d="M19.14 12.94a7.5 7.5 0 0 0 .05-.94 7.5 7.5 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54a7 7 0 0 0-1.62.94l-2.39-.96a.5.5 0 0 0-.61.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.5 7.5 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.49.38 1.04.7 1.62.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54a7 7 0 0 0 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7"/>
+        </svg>
+      </button>
     </div>
   </header>
 
@@ -43,6 +49,13 @@
         <button class="chip" data-filter="classic" data-i18n="classic">Classic</button>
         <button class="chip" data-filter="signature" data-i18n="signature">Signature</button>
         <button class="chip" data-filter="mocktail" data-i18n="mocktail">Mocktail</button>
+      </div>
+
+      <div class="chips availability-chips" id="availabilityChips" aria-label="Availability filter">
+        <button class="chip active" data-availability="all" data-i18n="availabilityAll">All stock states</button>
+        <button class="chip" data-availability="available" data-i18n="availableNow">Available now</button>
+        <button class="chip" data-availability="substitutable" data-i18n="substitutableNow">With substitute</button>
+        <button class="chip" data-availability="missing" data-i18n="missingKey">Missing key</button>
       </div>
 
       <div class="search-wrap">
@@ -75,6 +88,83 @@
       </div>
     </section>
   </main>
+
+  <!-- ===================== SETTINGS MODAL ===================== -->
+  <div class="settings-overlay" id="settingsOverlay" hidden>
+    <div class="settings-panel" role="dialog" aria-modal="true">
+      <div class="settings-head">
+        <h2 data-i18n="settings">Settings</h2>
+        <button class="sheet-close" id="settingsClose" aria-label="Close">✕</button>
+      </div>
+
+      <div class="settings-body">
+        <div class="settings-section">
+          <div class="settings-section-title">
+            <span>LLM 接口 / LLM Endpoint</span>
+          </div>
+          <p class="settings-hint" data-i18n="llmHint">
+            OpenAI-compatible. Changes save to .env and take effect immediately. The key is stored locally only.
+          </p>
+
+          <label class="field">
+            <span data-i18n="baseUrl">Base URL</span>
+            <input id="cfgBaseUrl" type="text" placeholder="https://api.openai.com/v1" autocomplete="off" />
+          </label>
+
+          <label class="field">
+            <span data-i18n="apiKey">API Key</span>
+            <input id="cfgApiKey" type="password" placeholder="sk-..." autocomplete="off" />
+            <em class="field-hint" id="cfgKeyHint"></em>
+          </label>
+
+          <label class="field">
+            <span data-i18n="model">Model</span>
+            <input id="cfgModel" type="text" placeholder="gpt-4o-mini" autocomplete="off" />
+          </label>
+
+          <div class="settings-actions">
+            <button class="btn ghost" id="testBtn" data-i18n="test">Test</button>
+            <button class="btn" id="saveCfgBtn" data-i18n="save">Save</button>
+          </div>
+
+          <div class="test-result" id="testResult" hidden></div>
+        </div>
+
+        <div class="settings-section danger-section">
+          <div class="settings-section-title"><span data-i18n="memoryTitle">Bartender memory</span></div>
+          <p class="settings-hint" data-i18n="memoryHint"></p>
+          <div class="memory-preview" id="memoryPreview"></div>
+          <div class="settings-actions">
+            <button class="btn danger" id="clearMemoryBtn" data-i18n="clearMemory">Clear memory</button>
+          </div>
+        </div>
+
+        <div class="settings-section cellar-section">
+          <div class="settings-section-title"><span data-i18n="cellarTitle">My cellar</span></div>
+          <p class="settings-hint" data-i18n="cellarHint"></p>
+          <div class="cellar-add">
+            <input id="addIngredientName" type="text" data-i18n-ph="addIngredientPh" placeholder="Add ingredient…" autocomplete="off" />
+            <select id="addIngredientCategory" aria-label="Ingredient category">
+              <option value="liqueur" data-i18n="catLiqueur">Liqueur</option>
+              <option value="base_spirit" data-i18n="catBaseSpirit">Base spirit</option>
+              <option value="bitter_liqueur" data-i18n="catBitter">Bitter</option>
+              <option value="fortified_wine" data-i18n="catFortified">Fortified</option>
+              <option value="bitters" data-i18n="catBitters">Bitters</option>
+              <option value="sweetener" data-i18n="catSweetener">Sweetener</option>
+              <option value="citrus" data-i18n="catCitrus">Citrus</option>
+              <option value="juice" data-i18n="catJuice">Juice</option>
+              <option value="mixer" data-i18n="catMixer">Mixer</option>
+              <option value="herb" data-i18n="catHerb">Herb</option>
+              <option value="garnish" data-i18n="catGarnish">Garnish</option>
+            </select>
+            <button class="btn" id="addIngredientBtn" data-i18n="addIngredient">Add</button>
+          </div>
+          <input id="cellarSearch" type="search" class="cellar-search" data-i18n-ph="cellarSearchPh" placeholder="Search ingredients…" autocomplete="off" />
+          <div class="cellar-list" id="cellarList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===================== RECIPE DETAIL SHEET ===================== -->
   <div class="sheet-overlay" id="sheetOverlay" hidden>
