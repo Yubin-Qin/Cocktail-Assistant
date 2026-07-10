@@ -45,6 +45,7 @@ ING_FILE = CELLAR_DIR / "ingredients.yml"
 SUB_FILE = CELLAR_DIR / "substitutions.yml"
 PROFILES_FILE = CELLAR_DIR / "ingredient_profiles.yml"
 MATRIX_FILE = CELLAR_DIR / "substitution_matrix.json"
+UNKNOWN_FILE = CELLAR_DIR / "unknown_aliases.json"
 
 FLAVOR_AXES = (
     "sweet", "sour", "bitter", "citrus", "fruity", "floral",
@@ -76,6 +77,7 @@ _RULE_PROPOSE = 0.55     # min score to propose at all in degraded (no-LLM) mode
 
 _BATCH_SIZE = 12  # pairs per judge call (each call stays well under the LLM timeout)
 _INFER_BATCH = 8  # profiles per infer call (keeps output well under token limits)
+_UNKNOWN_BATCH = 30  # unknown ingredient names per resolve call
 _CONCURRENCY = 2  # mild parallelism — balances speed against provider rate limits
 
 
@@ -228,8 +230,11 @@ class SubEngine:
         self._cached_fingerprint = ""
         self.profiles: dict[str, IngredientProfile] = {}
         self.matrix: dict[str, dict[str, dict]] = {}
+        self.unknown_aliases: dict[str, dict] = {}
+        self._resolving_unknowns = False
         self._load_profiles()
         self._load_matrix()
+        self._load_unknowns()
 
     # ---- loading ------------------------------------------------------- #
     def _load_profiles(self) -> None:
@@ -248,6 +253,12 @@ class SubEngine:
         if isinstance(data, dict):
             self.matrix = data.get("matrix", {}) if isinstance(data.get("matrix"), dict) else {}
             self._cached_fingerprint = str(data.get("fingerprint", ""))
+
+    def _load_unknowns(self) -> None:
+        data = _read_json(UNKNOWN_FILE, {"fingerprint": "", "aliases": {}})
+        if isinstance(data, dict):
+            aliases = data.get("aliases", {})
+            self.unknown_aliases = aliases if isinstance(aliases, dict) else {}
 
     # ---- query --------------------------------------------------------- #
     def _resolve(self, missing_id: str, cand: str, cellar) -> tuple[int, float, SmartSub] | None:
@@ -358,6 +369,88 @@ class SubEngine:
         threading.Thread(
             target=self._refresh_worker, args=(snapshot,), daemon=True
         ).start()
+
+    # ---- background unknown-name resolution ----------------------------- #
+    def maybe_resolve_unknowns(self, kb, cellar) -> None:
+        """Scan every recipe for unrecognized *required* ingredient names. If
+        any aren't cached yet, kick off one background LLM pass to map them to
+        catalog entries (synonyms) or in-stock substitutes. Cheap to call on
+        every reload: it no-ops when there's nothing new to judge.
+        """
+        unknowns = scan_unknowns(kb, cellar)
+        todo = [u for u in sorted(unknowns) if u not in self.unknown_aliases]
+        if not todo:
+            return
+        with self._lock:
+            if self._resolving_unknowns:
+                return
+            self._resolving_unknowns = True
+        snapshot = _cellar_snapshot(cellar)
+        threading.Thread(
+            target=self._resolve_unknowns_worker, args=(todo, unknowns, snapshot), daemon=True
+        ).start()
+
+    def _resolve_unknowns_worker(self, todo: list[str], unknowns: set[str], snapshot: dict) -> None:
+        try:
+            asyncio.run(self._resolve_unknowns_async(todo, unknowns, snapshot))
+        except Exception:  # noqa: BLE001 — background, never raise
+            pass
+        finally:
+            with self._lock:
+                self._resolving_unknowns = False
+
+    async def _resolve_unknowns_async(self, todo: list[str], unknowns: set[str], snapshot: dict) -> None:
+        if not settings.llm_configured:
+            return
+        from openai import AsyncOpenAI
+        cli = AsyncOpenAI(
+            base_url=settings.llm_base_url,
+            api_key=settings.llm_api_key or "not-configured",
+            timeout=90.0,
+        )
+        refresh_model = settings.llm_refresh_model or settings.llm_model
+        catalog = [
+            {"id": iid, "zh": ing["zh"], "en": ing["en"], "aliases": ing.get("aliases", [])}
+            for iid, ing in snapshot["ingredients"].items()
+        ]
+        stock = snapshot.get("stock", [])
+        # Pre-cache every todo name as null so that if the LLM omits any (it
+        # sometimes returns fewer items than asked), they still count as
+        # "judged" and won't be re-judged on every reload.
+        for raw in todo:
+            self.unknown_aliases.setdefault(raw, {
+                "mapped_id": "", "substitute_id": "", "confidence": "medium",
+                "reason": "", "dosage_note": "",
+            })
+        try:
+            for i in range(0, len(todo), _UNKNOWN_BATCH):
+                batch = todo[i:i + _UNKNOWN_BATCH]
+                judgments = await llm.resolve_unknown_materials(
+                    batch, catalog, stock, cli=cli, model=refresh_model
+                )
+                for j in judgments or []:
+                    if not isinstance(j, dict):
+                        continue
+                    raw = str(j.get("raw", "")).strip()
+                    if not raw:
+                        continue
+                    mid = j.get("mapped_id")
+                    sid = j.get("substitute_id")
+                    self.unknown_aliases[raw] = {
+                        "mapped_id": str(mid).strip() if mid and str(mid) in snapshot["ingredients"] else "",
+                        "substitute_id": str(sid).strip() if sid and str(sid) in snapshot["ingredients"] else "",
+                        "confidence": str(j.get("confidence", "medium")).lower() or "medium",
+                        "reason": str(j.get("reason", "") or ""),
+                        "dosage_note": str(j.get("dosage_note", "") or ""),
+                    }
+        finally:
+            try:
+                await cli.close()
+            except Exception:  # noqa: BLE001
+                pass
+        # drop stale aliases (names no longer in any recipe) + persist
+        self.unknown_aliases = {k: v for k, v in self.unknown_aliases.items() if k in unknowns}
+        _atomic_write_json(UNKNOWN_FILE, {"fingerprint": "", "aliases": self.unknown_aliases})
 
     def _refresh_worker(self, snapshot: dict) -> None:
         try:
@@ -559,8 +652,23 @@ def _cellar_snapshot(cellar) -> dict:
                 "aliases": list(ing.aliases),
             }
             for ing in cellar.ingredients.values()
-        }
+        },
+        "stock": sorted(iid for iid in cellar.ingredients if cellar.is_available(iid)),
     }
+
+
+def scan_unknowns(kb, cellar) -> set[str]:
+    """Every unrecognized *required* ingredient raw name across all recipes.
+
+    Drives the background unknown-name resolver: only these names ever need an
+    LLM judgment, and the result is cached per-name.
+    """
+    unknowns: set[str] = set()
+    for recipe in kb.recipes.values():
+        for need in cellar.normalize_recipe(recipe.ingredients):
+            if not need.ingredient_ids and need.required:
+                unknowns.add(need.raw_item)
+    return unknowns
 
 
 def _pair_view(pid: str, snapshot: dict, profiles: dict[str, IngredientProfile]) -> dict:

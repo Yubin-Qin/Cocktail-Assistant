@@ -95,3 +95,4 @@ data/cellar/custom_ingredients.yml
 # A generic seed template is tracked as ingredient_profiles.example.yml.
 data/cellar/ingredient_profiles.yml
 data/cellar/substitution_matrix.json
+data/cellar/unknown_aliases.json

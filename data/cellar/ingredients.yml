@@ -374,3 +374,20 @@ ingredients:
   zh: 水
   en: Water
   category: pantry
+- id: apricot_brandy
+  zh: 杏子白兰地
+  en: Apricot brandy
+  category: liqueur
+  aliases:
+  - 杏味白兰地
+  - Apricot brandy
+  - apricot brandy
+- id: apple_brandy
+  zh: 苹果白兰地
+  en: Apple brandy
+  category: base_spirit
+  aliases:
+  - Calvados
+  - 苹果白兰地
+  - Apple brandy
+  - apple brandy

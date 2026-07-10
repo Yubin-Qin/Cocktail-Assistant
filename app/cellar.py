@@ -103,6 +103,8 @@ class Cellar:
         # the engine fingerprint excludes inventory.yml).
         from . import substitutions
         substitutions.engine.maybe_refresh(self)
+        from .knowledge import kb
+        substitutions.engine.maybe_resolve_unknowns(kb, self)
 
     def _load_ingredients(self) -> dict[str, IngredientDef]:
         out: dict[str, IngredientDef] = {}
@@ -284,7 +286,13 @@ class Cellar:
             elif result["status"] == "substitutable":
                 substitutions.append(result)
             elif result["status"] == "unknown":
-                unknown.append(result["raw_item"])
+                # An unrecognized *required* ingredient means we can't confirm
+                # the drink is actually makeable — treat it as blocking instead
+                # of letting the recipe silently show as available.
+                if result["required"]:
+                    blocking_missing.append(result["raw_item"])
+                else:
+                    unknown.append(result["raw_item"])
 
         if blocking_missing:
             status = "missing"
@@ -431,6 +439,28 @@ class Cellar:
             "ingredient_ids": need.ingredient_ids,
         }
         if not need.ingredient_ids:
+            # Unrecognized name: consult the background LLM resolver's cache.
+            # mapped_id -> treat as that catalog entry; substitute_id (in stock)
+            # -> substitutable with the LLM's conditions/dosage; else unknown.
+            from . import substitutions
+            alias = substitutions.engine.unknown_aliases.get(need.raw_item) or {}
+            mid = alias.get("mapped_id")
+            sid = alias.get("substitute_id")
+            if mid and mid in self.ingredients:
+                if self.is_available(mid):
+                    return {**base, "status": "available", "ingredient_id": mid, "name": self.label(mid)}
+                return {**base, "status": "missing", "ingredient_id": mid, "name": self.label(mid)}
+            if sid and self.is_available(sid):
+                return {
+                    **base, "status": "substitutable", "name": need.raw_item,
+                    "substitute_id": sid, "substitute_name": self.label(sid),
+                    "substitute_confidence": alias.get("confidence", "medium"),
+                    "substitute_impact": alias.get("reason", ""),
+                    "substitute_conditions": alias.get("reason", ""),
+                    "substitute_dosage": alias.get("dosage_note", ""),
+                    "substitute_reason": alias.get("reason", ""),
+                    "substitute_source": "llm",
+                }
             return {**base, "status": "available" if not need.required else "unknown", "name": need.raw_item}
 
         available_id = next((iid for iid in need.ingredient_ids if self.is_available(iid)), "")

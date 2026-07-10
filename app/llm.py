@@ -332,6 +332,57 @@ async def judge_substitutions(pairs: list[dict], cli=None, model: str | None = N
     return data if isinstance(data, list) else []
 
 
+async def resolve_unknown_materials(
+    items: list[str],
+    catalog: list[dict],
+    stock: list[str],
+    cli=None,
+    model: str | None = None,
+) -> list[dict]:
+    """Conservatively map unrecognized ingredient names to catalog entries or
+    in-stock substitutes. **Never hallucinates**: anything uncertain -> null.
+
+    ``items`` is a list of unknown raw names; ``catalog`` is a list of
+    ``{id, zh, en, aliases}``; ``stock`` is a list of in-stock ids. Returns a
+    list of ``{raw, mapped_id, substitute_id, confidence, reason, dosage_note}``
+    (best-effort; never raises).
+    """
+    if not items:
+        return []
+    cat_text = "\n".join(
+        f"- {c.get('id','')} | {c.get('zh','')} / {c.get('en','')} | aliases: {', '.join(c.get('aliases', []))}"
+        for c in catalog
+    )
+    msgs = [
+        {"role": "system", "content": (
+            "你是严谨的调酒材料专家。下面是一些鸡尾酒配方里未能自动识别的材料名，以及当前材料库的"
+            "条目清单与库存。对每个未知名做**保守**判断，绝不可臆测：\n"
+            "1. mapped_id：它是否**就是**材料库中某条目的同一种材料（同物异名，如『单糖浆』= simple_syrup）？"
+            "只有你完全确信是同一材料时才填该 id；否则填 null。\n"
+            "2. substitute_id：它能否用材料库某条目**近似替代**？只有你确信在一般鸡尾酒中可替代时才填该 id，"
+            "并给出 confidence（high/medium/low）、理由与用量调整；否则填 null。\n"
+            "3. 两个都不确定就都填 null —— 不要猜。\n"
+            "优先让 substitute_id 命中库存(in_stock)中的材料，更实用。\n"
+            "只输出一个 JSON 数组，每个元素 {raw, mapped_id, substitute_id, confidence, reason, dosage_note}。"
+            "raw 必须原样回填，mapped_id/substitute_id 为 null 或材料库里的 id。不要输出任何其它文字。"
+        )},
+        {"role": "user", "content": (
+            f"材料库条目（只可选这里的 id）：\n{cat_text}\n\n"
+            f"库存(in_stock) ids：{', '.join(stock) or '(空)'}\n\n"
+            "未知材料名：\n" + "\n".join(f"- {x}" for x in items)
+        )},
+    ]
+    try:
+        resp = await (cli or client()).chat.completions.create(
+            model=model or settings.llm_model, messages=msgs, temperature=0, max_tokens=2200
+        )
+        text = (resp.choices[0].message.content or "").strip()
+    except Exception:  # noqa: BLE001 — best-effort
+        return []
+    data = _extract_json_array(text)
+    return data if isinstance(data, list) else []
+
+
 # --------------------------------------------------------------------------- #
 # Recipe extraction (the model emits a ```json block when finalizing)
 # --------------------------------------------------------------------------- #
