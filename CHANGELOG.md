@@ -2,6 +2,11 @@
 
 Notable changes to the Cocktail app. Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Fixed
+- Cellar delete button: after it auto-reverted (outside click / 5 s timeout), clicking it again failed to re-confirm. The click landed on the inner SVG `<path>`, which got detached when the button content swapped to the "Delete" label — so the document outside-click handler could no longer find the button via `closest()` and instantly reset the freshly-confirmed state. Switched to `stopPropagation()` on the button click plus an explicit confirming-button pointer.
+
 ## [0.2.0] - 2026-07-10
 
 ### Added — 智能材料替代引擎 / Smart substitution engine

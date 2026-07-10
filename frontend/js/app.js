@@ -181,11 +181,24 @@ const catEnLabel = (cat) => CAT_EN[cat] || cat;
 
 const DELETE_ICON = '<svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true"><path d="M3.8 3.8 L12.2 12.2 M12.2 3.8 L3.8 12.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>';
 
+let confirmingBtn = null;
+
 function resetDeleteBtn(btn) {
   if (!btn) return;
   btn.classList.remove("confirm");
   btn.innerHTML = DELETE_ICON;
   if (btn._delTimer) { clearTimeout(btn._delTimer); btn._delTimer = null; }
+}
+
+function setConfirmDelete(btn) {
+  if (confirmingBtn && confirmingBtn !== btn) resetDeleteBtn(confirmingBtn);
+  confirmingBtn = btn;
+  btn.classList.add("confirm");
+  btn.textContent = t("delete");
+  btn._delTimer = setTimeout(() => {
+    resetDeleteBtn(btn);
+    if (confirmingBtn === btn) confirmingBtn = null;
+  }, 5000);
 }
 
 /* ----------------------------- state ----------------------------------- */
@@ -614,10 +627,8 @@ function bindSettings() {
       addIngredient();
     }
   });
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest || !e.target.closest(".cellar-delete.confirm")) {
-      $$(".cellar-delete.confirm").forEach(resetDeleteBtn);
-    }
+  document.addEventListener("click", () => {
+    if (confirmingBtn) { resetDeleteBtn(confirmingBtn); confirmingBtn = null; }
   });
 }
 
@@ -707,7 +718,7 @@ function renderCellar() {
     btn.addEventListener("click", () => updateInventory(btn.closest(".cellar-item").dataset.id, btn.dataset.status))
   );
   $$(".cellar-delete", list).forEach((btn) =>
-    btn.addEventListener("click", () => onDeleteClick(btn))
+    btn.addEventListener("click", (ev) => onDeleteClick(btn, ev))
   );
 }
 
@@ -732,20 +743,23 @@ function renderCellarItem(item) {
     </div>`;
 }
 
-function onDeleteClick(btn) {
-  const id = btn.closest(".cellar-item").dataset.id;
-  if (btn.classList.contains("confirm")) {
-    if (btn._delTimer) { clearTimeout(btn._delTimer); btn._delTimer = null; }
-    deleteIngredient(id, btn);
+function onDeleteClick(btn, ev) {
+  // Stop propagation: the click must NOT reach the document handler (which
+  // resets the confirming button). We can't rely on e.target.closest there
+  // because toggling the button's content detaches the SVG <path> that was
+  // clicked, breaking ancestor lookup.
+  ev.stopPropagation();
+  if (btn === confirmingBtn) {
+    const id = btn.closest(".cellar-item").dataset.id;
+    confirmingBtn = null;
+    resetDeleteBtn(btn);
+    deleteIngredient(id);
   } else {
-    $$(".cellar-delete.confirm").forEach(resetDeleteBtn);
-    btn.classList.add("confirm");
-    btn.textContent = t("delete");
-    btn._delTimer = setTimeout(() => resetDeleteBtn(btn), 5000);
+    setConfirmDelete(btn);
   }
 }
 
-async function deleteIngredient(id, btn) {
+async function deleteIngredient(id) {
   try {
     await fetchJSON(`/api/cellar/ingredients/${encodeURIComponent(id)}`, { method: "DELETE" });
     state.cellar = await fetchJSON("/api/cellar");
@@ -755,7 +769,6 @@ async function deleteIngredient(id, btn) {
     toast(t("ingredientDeleted"));
   } catch (e) {
     toast("⚠️ " + e.message);
-    resetDeleteBtn(btn);
   }
 }
 
