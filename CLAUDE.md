@@ -34,7 +34,7 @@ The app loads three Markdown/YAML data stores under `data/`, each behind a **mod
 The loader understands two authoring styles in the same tree (documented in `data/README.md`):
 
 - **Style A** — YAML frontmatter + `# Title` + `## 中文 / English` sections, one recipe per file. Used by signatures and `_TEMPLATE.md`. Taxonomy (`base`/`glass`/`flavor`) comes from frontmatter.
-- **Style B** — no frontmatter; many recipes per file, each a `## English 中文` heading with `###` subsections. Used by the seeded `经典鸡尾酒.md` / `经典无酒精鸡尾酒.md`. The loader **infers** `base`/`glass`/`flavor` tags from Chinese keyword tables (`_BASE_KEYWORDS`, `_FLAVOR_KEYWORDS`, `_GLASS_BY_SLUG`) and splits the file.
+- **Style B** — no frontmatter; many recipes per file, each a `## English 中文` heading with `###` subsections. The classics/mocktails catalogs were migrated to Style A; Style B examples live in `data/_style-b-source/` (skipped by the loader — any path component starting with `_` is) as a draft format for GPT, converted to Style A via `scripts/migrate_style_b.py`. The loader **infers** `base`/`glass`/`flavor` tags from Chinese keyword tables (`_BASE_KEYWORDS`, `_FLAVOR_KEYWORDS`, `_GLASS_BY_SLUG`) and splits the file.
 
 Both become a `Recipe`. `slug` = filename stem, kebab-case, globally unique; collisions are last-writer-wins. Malformed files are skipped with a `[knowledge] skipping …` log line. The shared parsing primitives (`_split_at_level`, `_parse_table`, `_parse_numbered`, `_find_section` by keyword) drive both styles.
 

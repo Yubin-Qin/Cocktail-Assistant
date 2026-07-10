@@ -261,7 +261,9 @@ class KnowledgeBase:
             print(f"[knowledge] data dir not found: {self.data_dir}")
             return
         for md_path in sorted(self.data_dir.rglob("*.md")):
-            if md_path.name.startswith("_") or md_path.name.upper() == "README.MD":
+            rel_parts = md_path.relative_to(self.data_dir).parts
+            # skip _-prefixed files/dirs (templates, style-b-source) and READMEs
+            if any(p.startswith("_") for p in rel_parts) or md_path.name.upper() == "README.MD":
                 continue
             try:
                 self._load_file(md_path)

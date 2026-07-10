@@ -31,7 +31,7 @@ tags: [refreshing]
 
 ### Style B — many recipes in one prose file
 No frontmatter. Each recipe is a `## English 中文` heading, then `###` subsections.
-This is the style of the seeded `cocktails/classics/经典鸡尾酒.md` and `mocktails/经典无酒精鸡尾酒.md`.
+This is the style of the examples in `data/_style-b-source/` (`经典鸡尾酒.md` / `经典无酒精鸡尾酒.md`). The live classics/mocktails catalogs were migrated to Style A; use Style B as a draft format (e.g. for GPT) and convert with `scripts/migrate_style_b.py`.
 The loader splits the file into individual recipes and **infers** type (from folder), base, glass and flavor tags from the content.
 
 ```
