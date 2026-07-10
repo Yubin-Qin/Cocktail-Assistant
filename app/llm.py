@@ -246,6 +246,93 @@ async def distill_conversation(history: list[dict], drink_name: str) -> str:
 
 
 # --------------------------------------------------------------------------- #
+# Smart substitution helpers (non-streaming, structured JSON)
+# --------------------------------------------------------------------------- #
+
+def _extract_json_array(text: str) -> list | None:
+    """Tolerantly pull the first JSON array out of an LLM reply."""
+    text = (text or "").strip()
+    m = re.search(r"```(?:json)?\s*([\s\S]*?)```", text)
+    if m:
+        text = m.group(1).strip()
+    start, end = text.find("["), text.rfind("]")
+    if start < 0 or end <= start:
+        return None
+    try:
+        return json.loads(text[start:end + 1])
+    except json.JSONDecodeError:
+        return None
+
+
+async def infer_profiles(items: list[dict], cli=None, model: str | None = None) -> list[dict]:
+    """Infer a flavor/family/function/abv/intensity profile per ingredient.
+
+    ``items`` is a list of ``{id, zh, en, category, ...}``. Returns a list of
+    profile dicts (each carrying ``id``), best-effort; never raises.
+    """
+    if not items:
+        return []
+    catalog = "\n".join(
+        f"- id={it.get('id', '')} | {it.get('zh', '')} / {it.get('en', '')} | cat={it.get('category', '')}"
+        for it in items
+    )
+    messages = [
+        {"role": "system", "content": (
+            "你是调酒与风味专家。为下列每种材料推断结构化特性,用于判断替代关系。"
+            "对每个材料输出一个 JSON 对象,字段:\n"
+            "- family: 核心风味族,取自 [orange, elderflower, nut, coffee, berry, herbal, "
+            "citrus, caramel, vanilla, spicy, neutral]\n"
+            "- flavor: 对象,键取自 [sweet,sour,bitter,citrus,fruity,floral,herbal,spicy,"
+            "nutty,coffee,smoky,vanilla,caramel],值 0-3(只写非零项,至少一个 >0)\n"
+            "- function: 数组,取自 [sweetener,flavoring,acid,base,dilution,bitter,texture,aromatic]\n"
+            "- abv: 酒精度数字(糖浆/果汁/水 0;利口酒 15-40;基酒 40+)\n"
+            "- intensity: 风味强度数字(浓缩>1,标准=1,稀释<1)\n"
+            "只输出一个 JSON 数组,每个元素都要带 id 字段,顺序对应输入。不要任何其它文字。"
+        )},
+        {"role": "user", "content": catalog},
+    ]
+    resp = await (cli or client()).chat.completions.create(
+        model=model or settings.llm_model, messages=messages, temperature=0, max_tokens=2000
+    )
+    text = (resp.choices[0].message.content or "").strip()
+    data = _extract_json_array(text)
+    return data if isinstance(data, list) else []
+
+
+async def judge_substitutions(pairs: list[dict], cli=None, model: str | None = None) -> list[dict]:
+    """Judge whether each ``sub`` can substitute for ``missing``.
+
+    ``pairs`` is a list of ``{"missing": {...}, "sub": {...}}`` where each
+    side carries id/label/category/family/flavor/function/abv/intensity.
+    Returns a list of verdict dicts (each keyed by ``missing_id`` /
+    ``substitute_id``), best-effort; never raises.
+    """
+    if not pairs:
+        return []
+    body = json.dumps(pairs, ensure_ascii=False)
+    messages = [
+        {"role": "system", "content": (
+            "你是资深调酒师。判断每对材料里 sub 能否在一般鸡尾酒中替代 missing,综合考虑"
+            "风味族、风味向量、功能角色、酒精度和强度差异。对每对输出一个 JSON 对象:\n"
+            "- verdict: yes | conditional | no\n"
+            "- confidence: high | medium | low\n"
+            "- conditions: 适用场景或限制(中文,可空字符串)\n"
+            "- dosage_note: 用量调整建议(中文,可空字符串)\n"
+            "- reason: 一句中文理由\n"
+            "只输出一个 JSON 数组,每个元素都要带 missing_id 和 substitute_id 字段,顺序对应输入。"
+            "不要任何其它文字。"
+        )},
+        {"role": "user", "content": body[:6000]},
+    ]
+    resp = await (cli or client()).chat.completions.create(
+        model=model or settings.llm_model, messages=messages, temperature=0, max_tokens=1800
+    )
+    text = (resp.choices[0].message.content or "").strip()
+    data = _extract_json_array(text)
+    return data if isinstance(data, list) else []
+
+
+# --------------------------------------------------------------------------- #
 # Recipe extraction (the model emits a ```json block when finalizing)
 # --------------------------------------------------------------------------- #
 

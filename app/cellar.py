@@ -19,6 +19,9 @@ from .schemas import Ingredient, Recipe
 
 CELLAR_DIR = settings.data_dir / "cellar"
 INGREDIENTS_FILE = CELLAR_DIR / "ingredients.yml"
+# User-added custom ingredients live in a separate file so they stay out of
+# git (ingredients.yml is tracked app data; custom_ingredients.yml is personal).
+CUSTOM_INGREDIENTS_FILE = CELLAR_DIR / "custom_ingredients.yml"
 INVENTORY_FILE = CELLAR_DIR / "inventory.yml"
 SUBSTITUTIONS_FILE = CELLAR_DIR / "substitutions.yml"
 
@@ -56,6 +59,11 @@ class Substitution:
     confidence: str = "medium"
     impact: str = ""
     suitable_for: list[str] = field(default_factory=list)
+    # Smart-substitution extras (empty for hand-authored substitutions.yml rows).
+    conditions: str = ""
+    dosage_note: str = ""
+    reason: str = ""
+    source: str = "manual"  # manual | rule | llm
 
 
 @dataclass
@@ -90,23 +98,29 @@ class Cellar:
         self.ingredients = self._load_ingredients()
         self.inventory = self._load_inventory()
         self.substitutions = self._load_substitutions()
+        # Kick off a background matrix refresh if the ingredient/substitution/
+        # profile data changed (inventory-only reloads do NOT trigger it —
+        # the engine fingerprint excludes inventory.yml).
+        from . import substitutions
+        substitutions.engine.maybe_refresh(self)
 
     def _load_ingredients(self) -> dict[str, IngredientDef]:
-        raw = _read_yaml(INGREDIENTS_FILE, {"ingredients": []})
         out: dict[str, IngredientDef] = {}
-        for item in raw.get("ingredients", []):
-            if not isinstance(item, dict) or not item.get("id"):
-                continue
-            ing = IngredientDef(
-                id=str(item.get("id", "")).strip(),
-                zh=str(item.get("zh", "")).strip(),
-                en=str(item.get("en", "")).strip(),
-                category=str(item.get("category", "")).strip(),
-                aliases=[str(a).strip() for a in item.get("aliases", []) if str(a).strip()],
-                parent=str(item.get("parent", "")).strip(),
-                custom=bool(item.get("custom", False)),
-            )
-            out[ing.id] = ing
+        for path in (INGREDIENTS_FILE, CUSTOM_INGREDIENTS_FILE):
+            raw = _read_yaml(path, {"ingredients": []})
+            for item in raw.get("ingredients", []):
+                if not isinstance(item, dict) or not item.get("id"):
+                    continue
+                ing = IngredientDef(
+                    id=str(item.get("id", "")).strip(),
+                    zh=str(item.get("zh", "")).strip(),
+                    en=str(item.get("en", "")).strip(),
+                    category=str(item.get("category", "")).strip(),
+                    aliases=[str(a).strip() for a in item.get("aliases", []) if str(a).strip()],
+                    parent=str(item.get("parent", "")).strip(),
+                    custom=bool(item.get("custom", False)),
+                )
+                out[ing.id] = ing
         return out
 
     def _load_inventory(self) -> dict[str, dict[str, str]]:
@@ -210,7 +224,7 @@ class Cellar:
         zh, en = self._split_display_name(name)
         ingredient_id = self._custom_id(en or zh)
 
-        raw = _read_yaml(INGREDIENTS_FILE, {"ingredients": []})
+        raw = _read_yaml(CUSTOM_INGREDIENTS_FILE, {"ingredients": []})
         rows = raw.get("ingredients", [])
         if not isinstance(rows, list):
             rows = []
@@ -224,13 +238,28 @@ class Cellar:
             "aliases": [name],
             "custom": True,
         })
-        _write_yaml(INGREDIENTS_FILE, {"ingredients": rows})
+        _write_yaml(CUSTOM_INGREDIENTS_FILE, {"ingredients": rows})
 
         inv = _read_yaml(INVENTORY_FILE, {"inventory": []})
         inv_rows = inv.get("inventory", [])
         if not isinstance(inv_rows, list):
             inv_rows = []
         inv_rows.append({"ingredient_id": ingredient_id, "status": status})
+        _write_yaml(INVENTORY_FILE, {"inventory": inv_rows})
+        self.reload()
+        return self.summary()
+
+    def delete_ingredient(self, ingredient_id: str) -> dict:
+        if ingredient_id not in self.ingredients:
+            raise ValueError(f"Unknown ingredient: {ingredient_id}")
+        target = CUSTOM_INGREDIENTS_FILE if self.ingredients[ingredient_id].custom else INGREDIENTS_FILE
+        raw = _read_yaml(target, {"ingredients": []})
+        rows = [r for r in raw.get("ingredients", [])
+                if isinstance(r, dict) and r.get("id") != ingredient_id]
+        _write_yaml(target, {"ingredients": rows})
+        inv = _read_yaml(INVENTORY_FILE, {"inventory": []})
+        inv_rows = [r for r in (inv.get("inventory") or [])
+                    if isinstance(r, dict) and r.get("ingredient_id") != ingredient_id]
         _write_yaml(INVENTORY_FILE, {"inventory": inv_rows})
         self.reload()
         return self.summary()
@@ -424,6 +453,10 @@ class Cellar:
                 "substitute_name": self.label(sub.substitute),
                 "substitute_confidence": sub.confidence,
                 "substitute_impact": sub.impact,
+                "substitute_conditions": sub.conditions,
+                "substitute_dosage": sub.dosage_note,
+                "substitute_reason": sub.reason,
+                "substitute_source": sub.source,
             }
 
         first = need.ingredient_ids[0]
@@ -452,6 +485,21 @@ class Cellar:
         for sub in self.substitutions:
             if sub.missing in missing_ids and self.is_available(sub.substitute):
                 return sub
+        # Fall back to the smart substitution engine (Tier-A rules + cached
+        # Tier-B LLM verdicts) for pairs the hand-authored table doesn't cover.
+        from . import substitutions
+        smart = substitutions.engine.find_smart_substitution(missing_ids, self)
+        if smart:
+            return Substitution(
+                missing=smart.missing,
+                substitute=smart.substitute,
+                confidence=smart.confidence,
+                impact=smart.conditions,
+                conditions=smart.conditions,
+                dosage_note=smart.dosage_note,
+                reason=smart.reason,
+                source=smart.source,
+            )
         return None
 
     def label(self, ingredient_id: str) -> str:

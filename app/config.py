@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://api.openai.com/v1"
     llm_api_key: str = ""
     llm_model: str = "gpt-4o-mini"
+    llm_refresh_model: str = ""  # optional faster/non-thinking model for background substitution refresh
 
     # --- Server ----------------------------------------------------------
     host: str = "0.0.0.0"

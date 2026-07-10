@@ -28,6 +28,11 @@ class IngredientAvailability(BaseModel):
     substitute_name: str | None = None
     substitute_confidence: str | None = None
     substitute_impact: str | None = None
+    # Smart-substitution extras (only set when a substitute was resolved).
+    substitute_conditions: Optional[str] = None
+    substitute_dosage: Optional[str] = None
+    substitute_reason: Optional[str] = None
+    substitute_source: Optional[str] = None  # manual | rule | llm
 
 
 class Availability(BaseModel):

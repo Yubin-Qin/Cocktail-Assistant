@@ -143,8 +143,9 @@
           <div class="settings-section-title"><span data-i18n="cellarTitle">My cellar</span></div>
           <p class="settings-hint" data-i18n="cellarHint"></p>
           <div class="cellar-add">
-            <input id="addIngredientName" type="text" data-i18n-ph="addIngredientPh" placeholder="Add ingredient…" autocomplete="off" />
+            <input id="addIngredientName" type="text" data-i18n-ph="cellarAddPh" placeholder="搜索 / 添加材料…" autocomplete="off" />
             <select id="addIngredientCategory" aria-label="Ingredient category">
+              <option value="all" data-i18n="catAll">All</option>
               <option value="liqueur" data-i18n="catLiqueur">Liqueur</option>
               <option value="base_spirit" data-i18n="catBaseSpirit">Base spirit</option>
               <option value="bitter_liqueur" data-i18n="catBitter">Bitter</option>
@@ -159,7 +160,6 @@
             </select>
             <button class="btn" id="addIngredientBtn" data-i18n="addIngredient">Add</button>
           </div>
-          <input id="cellarSearch" type="search" class="cellar-search" data-i18n-ph="cellarSearchPh" placeholder="Search ingredients…" autocomplete="off" />
           <div class="cellar-list" id="cellarList"></div>
         </div>
       </div>

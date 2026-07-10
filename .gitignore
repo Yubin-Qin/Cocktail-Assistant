@@ -85,3 +85,13 @@ data/cellar/inventory.yml
 # To publish a new curated signature, force-add it:
 #   git add -f data/cocktails/signatures/your-drink.md
 data/cocktails/signatures/
+
+# --- Custom & substitution data (personal / runtime) ---------------------
+# Custom ingredients you add via the cellar UI. Personal — never publish.
+data/cellar/custom_ingredients.yml
+
+# Smart-substitution runtime: LLM-inferred profiles + cached verdict matrix.
+# They reference your personal custom ingredients — never publish.
+# A generic seed template is tracked as ingredient_profiles.example.yml.
+data/cellar/ingredient_profiles.yml
+data/cellar/substitution_matrix.json

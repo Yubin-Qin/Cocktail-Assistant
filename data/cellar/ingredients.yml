@@ -228,10 +228,6 @@ ingredients:
   zh: 石榴糖浆
   en: Grenadine
   category: sweetener
-- id: ginger_syrup
-  zh: 姜糖浆
-  en: Ginger syrup
-  category: sweetener
 - id: soda_water
   zh: 苏打水
   en: Soda water
@@ -378,10 +374,3 @@ ingredients:
   zh: 水
   en: Water
   category: pantry
-- id: custom_3c85959ce6
-  zh: 汤力水
-  en: ''
-  category: mixer
-  aliases:
-  - 汤力水
-  custom: true

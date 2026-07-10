@@ -39,12 +39,20 @@ const I18N = {
     cellarSearchPh: "搜索材料…", cellarSaved: "✓ 酒库已更新",
     addIngredient: "添加", addIngredientPh: "添加材料，如 接骨木花利口酒",
     ingredientAdded: "✓ 已加入酒库",
+    ingredientDeleted: "✓ 已删除",
+    delete: "删除",
+    catAll: "全部",
+    cellarAddPh: "搜索 / 添加材料…",
     catLiqueur: "利口酒", catBaseSpirit: "基酒", catBitter: "苦味利口酒", catFortified: "加强葡萄酒",
     catBitters: "苦精", catSweetener: "甜味材料", catCitrus: "柑橘", catJuice: "果汁",
     catMixer: "软饮/气泡", catHerb: "香草", catGarnish: "装饰",
     inStock: "有", lowStock: "少量", missingStock: "没有", ignoredStock: "忽略",
     availability: "可调性", available: "可调", substitutable: "可替代", missing: "缺材料", unknown: "待确认",
     substitute: "替代",
+    subConditions: "适用条件", subDosage: "用量调整", subReason: "理由",
+    subSourceManual: "手工", subSourceRule: "规则", subSourceLLM: "AI",
+    confHigh: "高置信", confMedium: "中", confLow: "低",
+    subMatrixRefreshing: "替代知识后台刷新中…", subMatrixReady: "替代知识就绪", subMatrixStale: "替代知识待生成（配置 LLM 后自动构建）",
   },
   en: {
     appTitle: "Cocktail",
@@ -80,12 +88,20 @@ const I18N = {
     cellarSearchPh: "Search ingredients…", cellarSaved: "✓ Cellar updated",
     addIngredient: "Add", addIngredientPh: "Add ingredient, e.g. Elderflower liqueur",
     ingredientAdded: "✓ Added to cellar",
+    ingredientDeleted: "✓ Deleted",
+    delete: "Delete",
+    catAll: "All",
+    cellarAddPh: "Search / add ingredient…",
     catLiqueur: "Liqueur", catBaseSpirit: "Base spirit", catBitter: "Bitter liqueur", catFortified: "Fortified wine",
     catBitters: "Bitters", catSweetener: "Sweetener", catCitrus: "Citrus", catJuice: "Juice",
     catMixer: "Mixer", catHerb: "Herb", catGarnish: "Garnish",
     inStock: "Have", lowStock: "Low", missingStock: "Missing", ignoredStock: "Ignore",
     availability: "Availability", available: "Available", substitutable: "Substitute", missing: "Missing", unknown: "Check",
     substitute: "Substitute",
+    subConditions: "Works when", subDosage: "Dosage", subReason: "Why",
+    subSourceManual: "manual", subSourceRule: "rule", subSourceLLM: "AI",
+    confHigh: "high", confMedium: "medium", confLow: "low",
+    subMatrixRefreshing: "Substitution knowledge refreshing…", subMatrixReady: "Substitution knowledge ready", subMatrixStale: "Substitution knowledge pending (builds automatically once LLM is configured)",
   },
 };
 
@@ -148,6 +164,30 @@ const QUICK_SENTENCE_TEMPLATES = {
 
 const RECENT_HISTORY_LIMIT = 10;
 
+const CAT_ORDER = [
+  "base_spirit", "fortified_wine", "wine", "bitter_liqueur", "liqueur", "bitters",
+  "citrus", "citrus_juice", "juice", "sweetener", "mixer", "herb", "produce",
+  "coffee", "texture", "garnish", "seasoning", "pantry",
+];
+const CAT_EN = {
+  base_spirit: "Base spirit", fortified_wine: "Fortified wine", wine: "Wine",
+  bitter_liqueur: "Bitter liqueur", liqueur: "Liqueur", bitters: "Bitters",
+  citrus: "Citrus", citrus_juice: "Citrus juice", juice: "Juice",
+  sweetener: "Sweetener", mixer: "Mixer", herb: "Herb", produce: "Produce",
+  coffee: "Coffee", texture: "Texture", garnish: "Garnish",
+  seasoning: "Seasoning", pantry: "Pantry",
+};
+const catEnLabel = (cat) => CAT_EN[cat] || cat;
+
+const DELETE_ICON = '<svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true"><path d="M3.8 3.8 L12.2 12.2 M12.2 3.8 L3.8 12.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>';
+
+function resetDeleteBtn(btn) {
+  if (!btn) return;
+  btn.classList.remove("confirm");
+  btn.innerHTML = DELETE_ICON;
+  if (btn._delTimer) { clearTimeout(btn._delTimer); btn._delTimer = null; }
+}
+
 /* ----------------------------- state ----------------------------------- */
 const state = {
   lang: localStorage.getItem("cocktail.lang") || "zh",
@@ -159,6 +199,7 @@ const state = {
   info: null,
   cellar: null,
   cellarQuery: "",
+  cellarCategoryFilter: "all",
   chat: [],          // {role, text, recipe?}
   streaming: false,
 };
@@ -440,10 +481,24 @@ function renderSheet(r) {
 
 function renderAvailabilityPanel(av) {
   if (!av) return "";
+  const SRC = { manual: "subSourceManual", rule: "subSourceRule", llm: "subSourceLLM" };
+  const CONF = { high: "confHigh", medium: "confMedium", low: "confLow" };
   const details = (av.details || []).map((d) => {
-    const sub = d.status === "substitutable"
-      ? `<div class="availability-sub">${t("substitute")}: ${escapeHtml(d.substitute_name || "")}${d.substitute_impact ? " · " + escapeHtml(d.substitute_impact) : ""}</div>`
-      : "";
+    let sub = "";
+    if (d.status === "substitutable") {
+      const tags = [];
+      if (d.substitute_source && SRC[d.substitute_source]) tags.push(t(SRC[d.substitute_source]));
+      if (d.substitute_confidence && CONF[d.substitute_confidence]) tags.push(t(CONF[d.substitute_confidence]));
+      const tagHtml = tags.length
+        ? " " + tags.map((s) => `<span class="sub-tag" style="font-size:.72em;padding:1px 6px;border-radius:8px;background:var(--bg-2);color:var(--text-2)">${escapeHtml(s)}</span>`).join("")
+        : "";
+      const bits = [];
+      if (d.substitute_conditions) bits.push(`<b>${t("subConditions")}:</b> ${escapeHtml(d.substitute_conditions)}`);
+      if (d.substitute_dosage) bits.push(`<b>${t("subDosage")}:</b> ${escapeHtml(d.substitute_dosage)}`);
+      const extra = bits.length ? `<div class="availability-sub-detail" style="font-size:.82em;color:var(--text-2);margin-top:2px">${bits.join("<br>")}</div>` : "";
+      const reason = d.substitute_reason ? `<div class="availability-sub-reason" style="font-size:.78em;color:var(--text-3);margin-top:2px">${escapeHtml(d.substitute_reason)}</div>` : "";
+      sub = `<div class="availability-sub">${t("substitute")}: <b>${escapeHtml(d.substitute_name || "")}</b>${tagHtml}</div>${extra}${reason}`;
+    }
     return `
       <li class="availability-row ${escapeHtml(d.status)}">
         <span>${availabilityIcon(d.status)}</span>
@@ -544,8 +599,12 @@ function bindSettings() {
   $("#saveCfgBtn").addEventListener("click", saveSettings);
   $("#testBtn").addEventListener("click", testLLM);
   $("#clearMemoryBtn").addEventListener("click", clearMemory);
-  $("#cellarSearch").addEventListener("input", (e) => {
+  $("#addIngredientName").addEventListener("input", (e) => {
     state.cellarQuery = e.target.value.toLowerCase().trim();
+    renderCellar();
+  });
+  $("#addIngredientCategory").addEventListener("change", (e) => {
+    state.cellarCategoryFilter = e.target.value;
     renderCellar();
   });
   $("#addIngredientBtn").addEventListener("click", addIngredient);
@@ -553,6 +612,11 @@ function bindSettings() {
     if (e.key === "Enter") {
       e.preventDefault();
       addIngredient();
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest || !e.target.closest(".cellar-delete.confirm")) {
+      $$(".cellar-delete.confirm").forEach(resetDeleteBtn);
     }
   });
 }
@@ -616,19 +680,48 @@ function renderCellar() {
   const list = $("#cellarList");
   if (!state.cellar || !list) return;
   const q = state.cellarQuery;
+  const cat = state.cellarCategoryFilter || "all";
   const items = (state.cellar.items || []).filter((item) => {
-    if (!q) return true;
-    return [item.zh, item.en, item.category, item.id].join(" ").toLowerCase().includes(q);
+    if (item.category === "pantry") return false; // 冰块/水默认可用,不在酒柜管理
+    const matchQ = !q || [item.zh, item.en, item.category, item.id].join(" ").toLowerCase().includes(q);
+    const matchCat = cat === "all" || item.category === cat;
+    return matchQ && matchCat;
   });
+  const statusRow = renderMatrixStatus(state.cellar.matrix_status);
   if (!items.length) {
-    list.innerHTML = `<div class="settings-hint">${t("noResults")}</div>`;
+    list.innerHTML = `${statusRow}<div class="settings-hint">${t("noResults")}</div>`;
     return;
   }
-  list.innerHTML = items.map((item) => `
+  const groups = {};
+  for (const it of items) (groups[it.category] ||= []).push(it);
+  const orderedCats = [...CAT_ORDER, ...Object.keys(groups).filter((c) => !CAT_ORDER.includes(c))];
+  let html = statusRow;
+  for (const c of orderedCats) {
+    if (!groups[c]) continue;
+    html += `<div class="cellar-group"><div class="cellar-group-head"><span>${escapeHtml(catEnLabel(c))}</span></div>`;
+    html += groups[c].map(renderCellarItem).join("");
+    html += `</div>`;
+  }
+  list.innerHTML = html;
+  $$(".cellar-status button", list).forEach((btn) =>
+    btn.addEventListener("click", () => updateInventory(btn.closest(".cellar-item").dataset.id, btn.dataset.status))
+  );
+  $$(".cellar-delete", list).forEach((btn) =>
+    btn.addEventListener("click", () => onDeleteClick(btn))
+  );
+}
+
+function renderCellarItem(item) {
+  const line2 = [item.en, item.note].filter(Boolean).join(" · ");
+  const meta = line2
+    ? `${escapeHtml(line2)}, ${escapeHtml(catEnLabel(item.category))}`
+    : escapeHtml(catEnLabel(item.category));
+  return `
     <div class="cellar-item" data-id="${escapeHtml(item.id)}">
+      <button class="cellar-delete" type="button" aria-label="${t("delete")}">${DELETE_ICON}</button>
       <div class="cellar-main">
         <strong>${escapeHtml(item.zh || item.en || item.id)}</strong>
-        <span>${escapeHtml(item.en || item.category)}${item.note ? " · " + escapeHtml(item.note) : ""}</span>
+        <span>${meta}</span>
       </div>
       <div class="cellar-status" role="group" aria-label="${escapeHtml(item.zh || item.en || item.id)}">
         ${cellarStatusButton(item, "in_stock", t("inStock"))}
@@ -636,11 +729,43 @@ function renderCellar() {
         ${cellarStatusButton(item, "missing", t("missingStock"))}
         ${cellarStatusButton(item, "ignored", t("ignoredStock"))}
       </div>
-    </div>
-  `).join("");
-  $$(".cellar-status button", list).forEach((btn) =>
-    btn.addEventListener("click", () => updateInventory(btn.closest(".cellar-item").dataset.id, btn.dataset.status))
-  );
+    </div>`;
+}
+
+function onDeleteClick(btn) {
+  const id = btn.closest(".cellar-item").dataset.id;
+  if (btn.classList.contains("confirm")) {
+    if (btn._delTimer) { clearTimeout(btn._delTimer); btn._delTimer = null; }
+    deleteIngredient(id, btn);
+  } else {
+    $$(".cellar-delete.confirm").forEach(resetDeleteBtn);
+    btn.classList.add("confirm");
+    btn.textContent = t("delete");
+    btn._delTimer = setTimeout(() => resetDeleteBtn(btn), 5000);
+  }
+}
+
+async function deleteIngredient(id, btn) {
+  try {
+    await fetchJSON(`/api/cellar/ingredients/${encodeURIComponent(id)}`, { method: "DELETE" });
+    state.cellar = await fetchJSON("/api/cellar");
+    await loadRecipes();
+    renderGrid();
+    renderCellar();
+    toast(t("ingredientDeleted"));
+  } catch (e) {
+    toast("⚠️ " + e.message);
+    resetDeleteBtn(btn);
+  }
+}
+
+function renderMatrixStatus(ms) {
+  if (!ms) return "";
+  let label;
+  if (ms.state === "refreshing") label = t("subMatrixRefreshing");
+  else if (ms.state === "ready") label = `${t("subMatrixReady")} · ${ms.pairs}`;
+  else label = t("subMatrixStale");
+  return `<div class="settings-hint cellar-matrix-status" style="margin:6px 0 10px;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:${ms.state === "ready" ? "var(--accent)" : ms.state === "refreshing" ? "#f0a020" : "var(--text-3)"}"></span>${escapeHtml(label)}</div>`;
 }
 
 function cellarStatusButton(item, status, label) {
@@ -668,6 +793,8 @@ async function addIngredient() {
   const btn = $("#addIngredientBtn");
   const name = input.value.trim();
   if (!name) return;
+  const sel = $("#addIngredientCategory").value;
+  const category = sel && sel !== "all" ? sel : "liqueur";
   const original = btn.textContent;
   btn.disabled = true;
   btn.textContent = "…";
@@ -675,15 +802,12 @@ async function addIngredient() {
     state.cellar = await fetchJSON("/api/cellar/ingredients", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        category: $("#addIngredientCategory").value || "liqueur",
-        status: "in_stock",
-      }),
+      body: JSON.stringify({ name, category, status: "in_stock" }),
     });
     input.value = "";
-    state.cellarQuery = name.toLowerCase();
-    $("#cellarSearch").value = name;
+    state.cellarQuery = "";
+    state.cellarCategoryFilter = "all";
+    $("#addIngredientCategory").value = "all";
     await loadRecipes();
     renderGrid();
     renderCellar();

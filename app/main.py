@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import cellar, config, llm, memory, recipes
+from . import cellar, config, llm, memory, recipes, substitutions
 from .config import settings
 from .knowledge import kb
 from .netinfo import lan_ip, url as build_url
@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Cocktail App",
     description="Bilingual cocktail-learning app with an AI bartender.",
-    version="0.1.0",
+    version="0.2.0",
     lifespan=lifespan,
 )
 
@@ -219,7 +219,9 @@ async def clear_memory():
 
 @app.get("/api/cellar")
 async def get_cellar():
-    return cellar.cellar.summary()
+    out = cellar.cellar.summary()
+    out["matrix_status"] = substitutions.engine.status()
+    return out
 
 
 @app.patch("/api/cellar/inventory")
@@ -234,6 +236,14 @@ async def update_cellar_inventory(req: CellarInventoryUpdate):
 async def add_cellar_ingredient(req: CellarIngredientCreate):
     try:
         return cellar.cellar.add_ingredient(req.name, req.category, req.status)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.delete("/api/cellar/ingredients/{ingredient_id}")
+async def delete_cellar_ingredient(ingredient_id: str):
+    try:
+        return cellar.cellar.delete_ingredient(ingredient_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 

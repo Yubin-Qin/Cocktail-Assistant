@@ -334,6 +334,7 @@ button { font-family: inherit; }
   padding-right: 2px;
 }
 .cellar-item {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
@@ -371,6 +372,69 @@ button { font-family: inherit; }
   border-color: var(--text);
   background: var(--text);
   color: #fff;
+}
+.cellar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cellar-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 2px 2px;
+}
+.cellar-group-head span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cellar-group-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.cellar-main {
+  padding-right: 30px;
+}
+.cellar-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.cellar-delete:hover {
+  color: var(--text);
+  border-color: var(--text-3);
+}
+.cellar-delete.confirm {
+  width: auto;
+  min-width: 50px;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 11px;
+  border-color: #d93025;
+  background: #d93025;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 /* ---------------------------------------------------------------- layout */

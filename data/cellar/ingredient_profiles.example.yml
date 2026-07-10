@@ -1,0 +1,419 @@
+profiles:
+- id: allspice_dram
+  family: spicy
+  flavor:
+    sweet: 1
+    spicy: 2
+    caramel: 2
+  function:
+  - flavoring
+  - sweetener
+  abv: 33.0
+  intensity: 1.2
+  source: manual
+- id: angostura_bitters
+  family: spicy
+  flavor:
+    bitter: 3
+    spicy: 2
+    caramel: 1
+  function:
+  - aromatic
+  - bitter
+  abv: 45.0
+  intensity: 1.5
+  source: manual
+- id: aperol
+  family: orange
+  flavor:
+    sweet: 2
+    bitter: 2
+    citrus: 2
+    fruity: 1
+  function:
+  - bitter
+  - flavoring
+  - sweetener
+  abv: 11.0
+  intensity: 1.0
+  source: manual
+- id: bourbon
+  family: caramel
+  flavor:
+    sweet: 1
+    vanilla: 1
+    caramel: 2
+  function:
+  - base
+  abv: 40.0
+  intensity: 1.0
+  source: manual
+- id: campari
+  family: herbal
+  flavor:
+    bitter: 3
+    fruity: 2
+    herbal: 1
+  function:
+  - bitter
+  - flavoring
+  abv: 25.0
+  intensity: 1.1
+  source: manual
+- id: chili_liqueur
+  family: spicy
+  flavor:
+    sweet: 1
+    spicy: 3
+  function:
+  - flavoring
+  abv: 25.0
+  intensity: 1.3
+  source: manual
+- id: coconut_syrup
+  family: neutral
+  flavor:
+    sweet: 3
+    caramel: 1
+  function:
+  - flavoring
+  - sweetener
+  abv: 0.0
+  intensity: 1.4
+  source: manual
+- id: coffee_liqueur
+  family: coffee
+  flavor:
+    sweet: 2
+    bitter: 1
+    coffee: 3
+  function:
+  - flavoring
+  - sweetener
+  abv: 20.0
+  intensity: 1.2
+  source: manual
+- id: cognac
+  family: caramel
+  flavor:
+    fruity: 2
+    caramel: 2
+  function:
+  - base
+  abv: 40.0
+  intensity: 1.0
+  source: manual
+- id: cranberry_juice
+  family: berry
+  flavor:
+    sweet: 2
+    sour: 2
+    fruity: 2
+  function:
+  - acid
+  - dilution
+  - flavoring
+  abv: 0.0
+  intensity: 0.6
+  source: manual
+- id: dry_vermouth
+  family: herbal
+  flavor:
+    bitter: 1
+    herbal: 2
+  function:
+  - aromatic
+  - dilution
+  - flavoring
+  abv: 18.0
+  intensity: 0.6
+  source: manual
+- id: elderflower_liqueur
+  family: elderflower
+  flavor:
+    sweet: 2
+    fruity: 1
+    floral: 3
+  function:
+  - flavoring
+  - sweetener
+  abv: 20.0
+  intensity: 1.1
+  source: manual
+- id: fernet
+  family: herbal
+  flavor:
+    bitter: 3
+    herbal: 2
+    spicy: 1
+  function:
+  - bitter
+  - flavoring
+  abv: 39.0
+  intensity: 1.3
+  source: manual
+- id: gin
+  family: herbal
+  flavor:
+    floral: 1
+    herbal: 2
+  function:
+  - base
+  abv: 42.0
+  intensity: 1.0
+  source: manual
+- id: ginger_syrup
+  family: spicy
+  flavor:
+    sweet: 2
+    spicy: 3
+  function:
+  - flavoring
+  - sweetener
+  abv: 0.0
+  intensity: 1.4
+  source: manual
+- id: grapefruit_juice
+  family: citrus
+  flavor:
+    sour: 2
+    bitter: 1
+    citrus: 2
+  function:
+  - acid
+  - dilution
+  - flavoring
+  abv: 0.0
+  intensity: 0.6
+  source: manual
+- id: grenadine
+  family: berry
+  flavor:
+    sweet: 3
+    sour: 1
+    fruity: 2
+  function:
+  - flavoring
+  - sweetener
+  abv: 0.0
+  intensity: 1.4
+  source: manual
+- id: honey_agave_syrup
+  family: caramel
+  flavor:
+    sweet: 3
+    floral: 1
+    caramel: 1
+  function:
+  - flavoring
+  - sweetener
+  abv: 0.0
+  intensity: 1.4
+  source: manual
+- id: lemon_juice
+  family: citrus
+  flavor:
+    sour: 3
+    citrus: 2
+  function:
+  - acid
+  abv: 0.0
+  intensity: 0.9
+  source: manual
+- id: lime_juice
+  family: citrus
+  flavor:
+    sour: 3
+    citrus: 2
+    herbal: 1
+  function:
+  - acid
+  abv: 0.0
+  intensity: 0.9
+  source: manual
+- id: mezcal
+  family: smoky
+  flavor:
+    herbal: 1
+    smoky: 3
+  function:
+  - base
+  abv: 45.0
+  intensity: 1.0
+  source: manual
+- id: orange_bitters
+  family: orange
+  flavor:
+    bitter: 2
+    citrus: 2
+    herbal: 1
+  function:
+  - aromatic
+  - bitter
+  abv: 40.0
+  intensity: 1.5
+  source: manual
+- id: orange_juice
+  family: orange
+  flavor:
+    sweet: 2
+    sour: 1
+    citrus: 2
+  function:
+  - acid
+  - dilution
+  - flavoring
+  abv: 0.0
+  intensity: 0.5
+  source: manual
+- id: osmanthus_syrup
+  family: floral
+  flavor:
+    sweet: 3
+    fruity: 1
+    floral: 2
+  function:
+  - flavoring
+  - sweetener
+  abv: 0.0
+  intensity: 1.4
+  source: manual
+- id: pineapple_juice
+  family: neutral
+  flavor:
+    sweet: 2
+    sour: 1
+    fruity: 2
+  function:
+  - acid
+  - dilution
+  - flavoring
+  abv: 0.0
+  intensity: 0.6
+  source: manual
+- id: rye_whiskey
+  family: caramel
+  flavor:
+    spicy: 1
+    caramel: 1
+  function:
+  - base
+  abv: 40.0
+  intensity: 1.0
+  source: manual
+- id: simple_syrup
+  family: neutral
+  flavor:
+    sweet: 3
+  function:
+  - sweetener
+  abv: 0.0
+  intensity: 1.5
+  source: manual
+- id: sparkling_wine
+  family: neutral
+  flavor:
+    fruity: 1
+    floral: 1
+  function:
+  - dilution
+  abv: 12.0
+  intensity: 0.5
+  source: manual
+- id: sugar
+  family: neutral
+  flavor:
+    sweet: 3
+  function:
+  - sweetener
+  abv: 0.0
+  intensity: 1.5
+  source: manual
+- id: suze
+  family: herbal
+  flavor:
+    bitter: 3
+    floral: 1
+    herbal: 2
+  function:
+  - bitter
+  - flavoring
+  abv: 15.0
+  intensity: 1.1
+  source: manual
+- id: sweet_vermouth
+  family: caramel
+  flavor:
+    sweet: 2
+    herbal: 1
+    spicy: 1
+    caramel: 1
+  function:
+  - dilution
+  - flavoring
+  - sweetener
+  abv: 18.0
+  intensity: 0.7
+  source: manual
+- id: tequila_blanco
+  family: herbal
+  flavor:
+    floral: 1
+    herbal: 2
+    spicy: 1
+  function:
+  - base
+  abv: 40.0
+  intensity: 1.0
+  source: manual
+- id: tomato_juice
+  family: neutral
+  flavor:
+    sour: 1
+    herbal: 1
+  function:
+  - dilution
+  - flavoring
+  abv: 0.0
+  intensity: 0.5
+  source: manual
+- id: triple_sec
+  family: orange
+  flavor:
+    sweet: 2
+    bitter: 1
+    citrus: 3
+  function:
+  - flavoring
+  - sweetener
+  abv: 40.0
+  intensity: 1.2
+  source: manual
+- id: vodka
+  family: neutral
+  flavor: {}
+  function:
+  - base
+  abv: 40.0
+  intensity: 0.8
+  source: manual
+- id: whisky
+  family: caramel
+  flavor:
+    smoky: 1
+    caramel: 2
+  function:
+  - base
+  abv: 40.0
+  intensity: 1.0
+  source: manual
+- id: white_rum
+  family: caramel
+  flavor:
+    sweet: 1
+    caramel: 1
+  function:
+  - base
+  abv: 40.0
+  intensity: 1.0
+  source: manual
