@@ -22,6 +22,7 @@ service (project constraint).
 from __future__ import annotations
 
 import asyncio
+import datetime
 import hashlib
 import json
 import math
@@ -46,6 +47,8 @@ SUB_FILE = CELLAR_DIR / "substitutions.yml"
 PROFILES_FILE = CELLAR_DIR / "ingredient_profiles.yml"
 MATRIX_FILE = CELLAR_DIR / "substitution_matrix.json"
 UNKNOWN_FILE = CELLAR_DIR / "unknown_aliases.json"
+FEWSHOT_PERSONAL = CELLAR_DIR / "fewshot_personal.json"
+FEWSHOT_OPEN = settings.data_dir.parent / "docs" / "fewshot" / "substitution_examples.json"
 
 FLAVOR_AXES = (
     "sweet", "sour", "bitter", "citrus", "fruity", "floral",
@@ -232,9 +235,13 @@ class SubEngine:
         self.matrix: dict[str, dict[str, dict]] = {}
         self.unknown_aliases: dict[str, dict] = {}
         self._resolving_unknowns = False
+        self._dirty = False
         self._load_profiles()
         self._load_matrix()
         self._load_unknowns()
+        # dirty recovery: source data changed since the last persisted matrix
+        if self._cached_fingerprint and self._cached_fingerprint != _fingerprint():
+            self._dirty = True
 
     # ---- loading ------------------------------------------------------- #
     def _load_profiles(self) -> None:
@@ -335,6 +342,46 @@ class SubEngine:
                     best_sub = sub
         return best_sub
 
+    # ---- manual / scheduled refresh ------------------------------------ #
+    def mark_dirty(self, cellar, reason: str = "") -> None:
+        """Note that source data may have changed. Cheap — never runs the LLM;
+        the next scheduled or manual refresh picks it up."""
+        with self._lock:
+            self._dirty = True
+
+    def force_refresh(self, cellar, kb) -> bool:
+        """Kick off one combined matrix + unknown-name refresh in the background.
+        Returns False if one is already running (manual, scheduler, and any
+        stale triggers all funnel through this single entry point)."""
+        with self._lock:
+            if self._refreshing:
+                return False
+            self._refreshing = True
+        snapshot = _cellar_snapshot(cellar)
+        unknowns = scan_unknowns(kb, cellar)
+        todo = [u for u in sorted(unknowns) if u not in self.unknown_aliases]
+        threading.Thread(target=self._force_worker, args=(snapshot, todo, unknowns), daemon=True).start()
+        return True
+
+    def _force_worker(self, snapshot, todo, unknowns):
+        try:
+            asyncio.run(self._force_async(snapshot, todo, unknowns))
+        except Exception:  # noqa: BLE001 — background, never raise
+            pass
+        finally:
+            with self._lock:
+                self._refreshing = False
+
+    async def _force_async(self, snapshot, todo, unknowns):
+        # matrix: only if the source fingerprint actually changed
+        if _fingerprint() != self._cached_fingerprint:
+            await self._refresh_async(snapshot)
+        # unknowns: only if there are uncached names
+        if todo:
+            await self._resolve_unknowns_async(todo, unknowns, snapshot)
+        with self._lock:
+            self._dirty = False
+
     # ---- status -------------------------------------------------------- #
     def status(self) -> dict:
         if self._refreshing:
@@ -348,6 +395,7 @@ class SubEngine:
             "fingerprint": self._cached_fingerprint[:8],
             "pairs": sum(len(v) for v in self.matrix.values()),
             "llm_configured": settings.llm_configured,
+            "dirty": self._dirty,
         }
 
     # ---- background refresh -------------------------------------------- #
@@ -426,7 +474,7 @@ class SubEngine:
             for i in range(0, len(todo), _UNKNOWN_BATCH):
                 batch = todo[i:i + _UNKNOWN_BATCH]
                 judgments = await llm.resolve_unknown_materials(
-                    batch, catalog, stock, cli=cli, model=refresh_model
+                    batch, catalog, stock, cli=cli, model=refresh_model, fewshot=_FEW_SHOT_RESOLVE
                 )
                 for j in judgments or []:
                     if not isinstance(j, dict):
@@ -543,7 +591,7 @@ class SubEngine:
                     ]
                     for attempt in range(3):
                         try:
-                            return await llm.judge_substitutions(payload, cli, model=refresh_model)
+                            return await llm.judge_substitutions(payload, cli, model=refresh_model, fewshot=_FEW_SHOT_JUDGE)
                         except Exception:
                             if attempt < 2:
                                 await asyncio.sleep(3 * (attempt + 1))
@@ -688,3 +736,116 @@ def _pair_view(pid: str, snapshot: dict, profiles: dict[str, IngredientProfile])
 
 
 engine = SubEngine()
+
+
+# --------------------------------------------------------------------------- #
+# Few-shot examples (loaded once at import; injected into LLM judge/resolve)
+# --------------------------------------------------------------------------- #
+_FEW_SHOT_JUDGE: list[dict] = []
+_FEW_SHOT_RESOLVE: list[dict] = []
+
+
+def _verdict_from_score(score) -> tuple[str, str] | None:
+    """Map a 0–10 substitutability score to (verdict, confidence)."""
+    try:
+        s = int(score)
+    except (TypeError, ValueError):
+        return None
+    if s >= 7:
+        return ("yes", "high" if s >= 8 else "medium")
+    if s >= 4:
+        return ("conditional", "medium")
+    return ("no", "high" if s <= 2 else "medium")
+
+
+def _load_fewshot() -> None:
+    """Load substitution few-shot examples. Prefer the personal file (it
+    includes the user's custom ingredients, so judgments are most accurate
+    locally); fall back to the open-source subset."""
+    global _FEW_SHOT_JUDGE, _FEW_SHOT_RESOLVE
+    raw = None
+    for path in (FEWSHOT_PERSONAL, FEWSHOT_OPEN):
+        try:
+            if path.exists():
+                raw = json.loads(path.read_text(encoding="utf-8"))
+                break
+        except (OSError, json.JSONDecodeError):
+            continue
+    if not isinstance(raw, list):
+        return
+    filled = [e for e in raw if isinstance(e, dict) and e.get("substitutability") is not None]
+    by_score: dict[int, list[dict]] = {}
+    for e in filled:
+        try:
+            by_score.setdefault(int(e["substitutability"]), []).append(e)
+        except (TypeError, ValueError):
+            continue
+    # judge: a calibrated mix across the 1–8 range (alternate high/low so the
+    # model sees both good and bad substitutes)
+    judge: list[dict] = []
+    for s in (8, 1, 6, 3, 7, 2, 5, 4):
+        for e in by_score.get(s, []):
+            judge.append(e)
+            if len(judge) >= 16:
+                break
+        if len(judge) >= 16:
+            break
+    _FEW_SHOT_JUDGE = judge
+    # resolve: derive yes (substitute_id set) / no (null) examples
+    resolve: list[dict] = []
+    for e in filled:
+        v = _verdict_from_score(e.get("substitutability"))
+        if not v:
+            continue
+        verdict, conf = v
+        resolve.append({
+            "raw": e["missing"],
+            "mapped_id": "",
+            "substitute_id": e["substitute"] if verdict == "yes" else "",
+            "confidence": conf,
+            "reason": str(e.get("rationale", "") or ""),
+            "dosage_note": "",
+        })
+        if len(resolve) >= 8:
+            break
+    _FEW_SHOT_RESOLVE = resolve
+
+
+_load_fewshot()
+
+
+# --------------------------------------------------------------------------- #
+# Daily low-frequency scheduler (daemon thread; no extra dependencies)
+# --------------------------------------------------------------------------- #
+_LAST_RUN_DATE: str | None = None
+_SCHED_POLL = 600  # seconds — wake every 10 min to check the time window
+
+
+def _scheduler_loop() -> None:
+    """At settings.sub_refresh_hour, if the engine is dirty (material/recipe
+    changed since the last refresh) and not already refreshing, kick off one
+    refresh. At most once per calendar day."""
+    global _LAST_RUN_DATE
+    while True:
+        time.sleep(_SCHED_POLL)
+        try:
+            now = datetime.datetime.now()
+            today = now.strftime("%Y-%m-%d")
+            if _LAST_RUN_DATE == today:
+                continue
+            if now.hour != settings.sub_refresh_hour:
+                continue
+            if not settings.llm_configured:
+                continue
+            with engine._lock:
+                if engine._refreshing or not engine._dirty:
+                    continue
+            from . import cellar as _cm
+            from .knowledge import kb as _kb
+            if engine.force_refresh(_cm.cellar, _kb):
+                _LAST_RUN_DATE = today
+        except Exception:  # noqa: BLE001 — never crash the scheduler
+            pass
+
+
+threading.Thread(target=_scheduler_loop, daemon=True, name="sub-scheduler").start()

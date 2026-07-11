@@ -53,6 +53,7 @@ const I18N = {
     subSourceManual: "手工", subSourceRule: "规则", subSourceLLM: "AI",
     confHigh: "高置信", confMedium: "中", confLow: "低",
     subMatrixRefreshing: "替代知识后台刷新中…", subMatrixReady: "替代知识就绪", subMatrixStale: "替代知识待生成（配置 LLM 后自动构建）",
+    refreshSubstitutes: "替代品检索", subRefreshStarted: "✓ 已开始检索", subRefreshAlreadyRunning: "正在检索，请稍候…",
   },
   en: {
     appTitle: "Cocktail",
@@ -102,6 +103,7 @@ const I18N = {
     subSourceManual: "manual", subSourceRule: "rule", subSourceLLM: "AI",
     confHigh: "high", confMedium: "medium", confLow: "low",
     subMatrixRefreshing: "Substitution knowledge refreshing…", subMatrixReady: "Substitution knowledge ready", subMatrixStale: "Substitution knowledge pending (builds automatically once LLM is configured)",
+    refreshSubstitutes: "Refresh substitutes", subRefreshStarted: "✓ Refresh started", subRefreshAlreadyRunning: "Already refreshing…",
   },
 };
 
@@ -213,6 +215,7 @@ const state = {
   cellar: null,
   cellarQuery: "",
   cellarCategoryFilter: "all",
+  settingsPane: "settings",
   chat: [],          // {role, text, recipe?}
   streaming: false,
 };
@@ -627,12 +630,17 @@ function bindSettings() {
       addIngredient();
     }
   });
+  $$(".settings-nav-btn").forEach((btn) =>
+    btn.addEventListener("click", () => switchSettingsPane(btn.dataset.pane))
+  );
+  $("#refreshSubsBtn").addEventListener("click", refreshSubs);
   document.addEventListener("click", () => {
     if (confirmingBtn) { resetDeleteBtn(confirmingBtn); confirmingBtn = null; }
   });
 }
 
 async function openSettings() {
+  switchSettingsPane("settings");
   $("#settingsOverlay").hidden = false;
   document.body.style.overflow = "hidden";
   $("#testResult").hidden = true;
@@ -698,15 +706,15 @@ function renderCellar() {
     const matchCat = cat === "all" || item.category === cat;
     return matchQ && matchCat;
   });
-  const statusRow = renderMatrixStatus(state.cellar.matrix_status);
+  renderMatrixStatus(state.cellar.matrix_status);
   if (!items.length) {
-    list.innerHTML = `${statusRow}<div class="settings-hint">${t("noResults")}</div>`;
+    list.innerHTML = `<div class="settings-hint">${t("noResults")}</div>`;
     return;
   }
   const groups = {};
   for (const it of items) (groups[it.category] ||= []).push(it);
   const orderedCats = [...CAT_ORDER, ...Object.keys(groups).filter((c) => !CAT_ORDER.includes(c))];
-  let html = statusRow;
+  let html = "";
   for (const c of orderedCats) {
     if (!groups[c]) continue;
     html += `<div class="cellar-group"><div class="cellar-group-head"><span>${escapeHtml(catEnLabel(c))}</span></div>`;
@@ -773,12 +781,50 @@ async function deleteIngredient(id) {
 }
 
 function renderMatrixStatus(ms) {
-  if (!ms) return "";
+  const el = $("#cellarMatrixStatus");
+  if (!el) return;
+  if (!ms) { el.innerHTML = ""; return; }
   let label;
   if (ms.state === "refreshing") label = t("subMatrixRefreshing");
-  else if (ms.state === "ready") label = `${t("subMatrixReady")} · ${ms.pairs}`;
+  else if (ms.state === "ready") label = `${t("subMatrixReady")} · ${ms.pairs}${ms.dirty ? " · 待更新" : ""}`;
   else label = t("subMatrixStale");
-  return `<div class="settings-hint cellar-matrix-status" style="margin:6px 0 10px;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:${ms.state === "ready" ? "var(--accent)" : ms.state === "refreshing" ? "#f0a020" : "var(--text-3)"}"></span>${escapeHtml(label)}</div>`;
+  const color = ms.state === "ready" ? (ms.dirty ? "#f0a020" : "var(--accent)") : ms.state === "refreshing" ? "#f0a020" : "var(--text-3)";
+  el.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-3)"><span style="width:7px;height:7px;border-radius:50%;background:${color}"></span>${escapeHtml(label)}</span>`;
+}
+
+function switchSettingsPane(pane) {
+  state.settingsPane = pane;
+  $$(".settings-nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.pane === pane));
+  $$(".pane").forEach((p) => { p.hidden = p.dataset.pane !== pane; });
+  const title = $("#settingsTitle");
+  if (title) title.textContent = t(pane === "cellar" ? "cellarTitle" : "settings");
+  if (pane === "cellar") loadCellar();
+}
+
+async function refreshSubs() {
+  const btn = $("#refreshSubsBtn");
+  if (!btn || btn.disabled) return;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = "…";
+  try {
+    const r = await fetchJSON("/api/cellar/refresh", { method: "POST" });
+    if (!r.started) { toast(t("subRefreshAlreadyRunning")); }
+    else { toast(t("subRefreshStarted")); pollMatrixStatus(); }
+  } catch (e) { toast("⚠️ " + e.message); }
+  finally { btn.disabled = false; btn.textContent = orig; }
+}
+
+function pollMatrixStatus() {
+  let n = 0;
+  const timer = setInterval(async () => {
+    n += 1;
+    try {
+      state.cellar = await fetchJSON("/api/cellar");
+      renderMatrixStatus(state.cellar.matrix_status);
+    } catch (e) { /* ignore */ }
+    const ms = state.cellar && state.cellar.matrix_status;
+    if ((ms && ms.state !== "refreshing") || n > 60) clearInterval(timer);
+  }, 2000);
 }
 
 function cellarStatusButton(item, status, label) {

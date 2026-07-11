@@ -172,6 +172,8 @@ async def save_recipe(payload: RecipePayload):
         memory.save_conversation(slug, distilled)
         memory_saved = True
     memory.append_rolling(f"和客人一起设计了特调「{drink_name}」。")
+    kb.reload()
+    substitutions.engine.mark_dirty(cellar.cellar, reason="recipe")
     return {"slug": slug, "path": str(path), "ok": True, "memory_saved": memory_saved}
 
 
@@ -204,6 +206,7 @@ async def delete_cocktail(slug: str):
     if deleted_stem != slug:
         memory.delete_conversation(deleted_stem)
     kb.reload()
+    substitutions.engine.mark_dirty(cellar.cellar, reason="recipe")
     return {"ok": True, "slug": slug}
 
 
@@ -246,6 +249,13 @@ async def delete_cellar_ingredient(ingredient_id: str):
         return cellar.cellar.delete_ingredient(ingredient_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/cellar/refresh")
+async def refresh_substitutions():
+    """Manually trigger a background substitution refresh (matrix + unknowns)."""
+    started = substitutions.engine.force_refresh(cellar.cellar, kb)
+    return {"started": started, "status": substitutions.engine.status()}
 
 
 # ---- LLM settings (live URL / key / model + connection test) -------------- #

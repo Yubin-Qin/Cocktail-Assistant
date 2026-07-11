@@ -102,9 +102,7 @@ class Cellar:
         # profile data changed (inventory-only reloads do NOT trigger it —
         # the engine fingerprint excludes inventory.yml).
         from . import substitutions
-        substitutions.engine.maybe_refresh(self)
-        from .knowledge import kb
-        substitutions.engine.maybe_resolve_unknowns(kb, self)
+        substitutions.engine.mark_dirty(self, reason="cellar")
 
     def _load_ingredients(self) -> dict[str, IngredientDef]:
         out: dict[str, IngredientDef] = {}

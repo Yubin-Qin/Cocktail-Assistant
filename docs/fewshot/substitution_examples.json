@@ -1,0 +1,266 @@
+[
+  {
+    "missing": "蜂蜜",
+    "substitute": "simple_syrup",
+    "substitute_purpose": "单糖浆 / Simple syrup (simple_syrup): 功能[sweetener]; 风味[sweet:3]; family=neutral",
+    "substitutability": 8,
+    "missing_purpose": "甜味剂，带花蜜香、圆润黏稠质地与柔和甜感。",
+    "rationale": "单糖浆能直接承担甜味剂功能，甜度也容易折算；但缺少蜂蜜的花香、矿物感和黏稠度，宜略减用量或接受风味变得更中性。"
+  },
+  {
+    "missing": "蜂蜜",
+    "substitute": "sugar",
+    "substitute_purpose": "糖 / Sugar (sugar): 功能[sweetener]; 风味[sweet:3]; family=neutral",
+    "substitutability": 6,
+    "missing_purpose": "甜味剂，带花蜜香、圆润黏稠质地与柔和甜感。",
+    "rationale": "糖能提供甜度，但没有蜂蜜的香气与液态质地，而且冷饮中不易直接溶解。最好先制成糖浆并按甜度调整。"
+  },
+  {
+    "missing": "鲜奶油",
+    "substitute": "egg_white",
+    "substitute_purpose": "蛋清 / Egg white: 质地/起泡(蛋清,无味,提供绵密泡沫与口感)",
+    "substitutability": 4,
+    "missing_purpose": "提供乳脂、奶香与厚重顺滑口感，并可形成柔和泡沫。",
+    "rationale": "蛋清能制造绵密泡沫和一定厚度，却没有乳脂、奶香和奶油般的包裹感。只在主要追求泡沫而非乳香时勉强可用。"
+  },
+  {
+    "missing": "蛋黄",
+    "substitute": "egg_white",
+    "substitute_purpose": "蛋清 / Egg white: 质地/起泡(蛋清,无味,提供绵密泡沫与口感)",
+    "substitutability": 4,
+    "missing_purpose": "提供脂肪、乳化能力与浓郁蛋香，使酒体厚重丝滑。",
+    "rationale": "蛋清同属蛋类并能增加泡沫和口感，但几乎不含脂肪，作用从乳化增稠转为起泡，成品会更轻、更干。"
+  },
+  {
+    "missing": "原味酸奶",
+    "substitute": "egg_white",
+    "substitute_purpose": "蛋清 / Egg white: 质地/起泡(蛋清,无味,提供绵密泡沫与口感)",
+    "substitutability": 3,
+    "missing_purpose": "提供乳酸酸味、发酵奶香与浓稠顺滑的乳制品质地。",
+    "rationale": "蛋清能增加泡沫和柔滑感，但没有乳酸、发酵奶香和酸奶的浓稠乳脂感，功能只重叠一小部分。"
+  },
+  {
+    "missing": "原味酸奶",
+    "substitute": "lemon_juice",
+    "substitute_purpose": "新鲜柠檬汁 / Fresh lemon juice (lemon_juice): 功能[acid]; 风味[sour:3, citrus:2]; family=citrus",
+    "substitutability": 4,
+    "missing_purpose": "提供乳酸酸味、发酵奶香与浓稠顺滑的乳制品质地。",
+    "rationale": "柠檬汁能补足酸度，却完全缺少酸奶的乳香、发酵感和稠度，而且酸感更尖锐。适合酸度比奶油质地更重要的配方。"
+  },
+  {
+    "missing": "柚子汁",
+    "substitute": "lemon_juice",
+    "substitute_purpose": "新鲜柠檬汁 / Fresh lemon juice (lemon_juice): 功能[acid]; 风味[sour:3, citrus:2]; family=citrus",
+    "substitutability": 7,
+    "missing_purpose": "提供鲜明酸度、芳香柑橘皮油感，以及略带苦韵的柚子风味。",
+    "rationale": "柠檬汁同为高酸度柑橘汁，能承担主要酸味功能；但香气更直接、更单薄，缺少柚子的复杂皮香与微苦，需要适当降低用量。"
+  },
+  {
+    "missing": "柚子汁",
+    "substitute": "orange_juice",
+    "substitute_purpose": "橙汁 / Orange juice (orange_juice): 功能[acid, dilution, flavoring]; 风味[sweet:2, sour:1, citrus:2]; family=orange",
+    "substitutability": 5,
+    "missing_purpose": "提供鲜明酸度、芳香柑橘皮油感，以及略带苦韵的柚子风味。",
+    "rationale": "橙汁同属柑橘并有果汁体量，但更甜、酸度更低，也缺少柚子的苦香。可营造较柔和的柑橘版本，通常需减少其他甜味并补酸。"
+  },
+  {
+    "missing": "柚子汁",
+    "substitute": "pomegranate_juice",
+    "substitute_purpose": "石榴汁 / Pomegranate juice (pomegranate_juice): 功能[acid, flavoring, sweetener]; 风味[sweet:2, sour:1, fruity:2]; family=berry",
+    "substitutability": 3,
+    "missing_purpose": "提供鲜明酸度、芳香柑橘皮油感，以及略带苦韵的柚子风味。",
+    "rationale": "石榴汁能提供果酸和果香，但不具柑橘皮油与柚子苦香，颜色和风味方向都会明显改变。只适合不强调柚子特色的配方。"
+  },
+  {
+    "missing": "苹果醋",
+    "substitute": "lemon_juice",
+    "substitute_purpose": "新鲜柠檬汁 / Fresh lemon juice (lemon_juice): 功能[acid]; 风味[sour:3, citrus:2]; family=citrus",
+    "substitutability": 6,
+    "missing_purpose": "提供尖锐醋酸、轻微苹果果香与发酵感，用来提亮并增加复杂度。",
+    "rationale": "柠檬汁能提供足够酸度和清爽感，但酸的类型从醋酸变为柠檬酸，缺少发酵与苹果气息。应少量试加，避免酸度过尖。"
+  },
+  {
+    "missing": "苹果醋",
+    "substitute": "orange_juice",
+    "substitute_purpose": "橙汁 / Orange juice (orange_juice): 功能[acid, dilution, flavoring]; 风味[sweet:2, sour:1, citrus:2]; family=orange",
+    "substitutability": 3,
+    "missing_purpose": "提供尖锐醋酸、轻微苹果果香与发酵感，用来提亮并增加复杂度。",
+    "rationale": "橙汁有果酸和果香，但酸度明显更低、甜度更高，也没有醋的发酵与刺激感。只能做更柔和、更果汁化的改版。"
+  },
+  {
+    "missing": "橙味柑橘利口酒",
+    "substitute": "orange_juice",
+    "substitute_purpose": "橙汁 / Orange juice (orange_juice): 功能[acid, dilution, flavoring]; 风味[sweet:2, sour:1, citrus:2]; family=orange",
+    "substitutability": 5,
+    "missing_purpose": "提供浓缩橙皮香、甜味和酒精支撑，并连接基酒与酸味。",
+    "rationale": "橙汁能提供橙味、甜度和一定酸度，但缺少橙皮利口酒的浓缩香气、酒精度和糖度。需增加用量并重新平衡稀释与甜酸。"
+  },
+  {
+    "missing": "橙味柑橘利口酒",
+    "substitute": "orange",
+    "substitute_purpose": "橙子 / Orange (orange): 功能[acid, flavoring]; 风味[sweet:2, sour:2, citrus:3, fruity:2]; family=orange",
+    "substitutability": 5,
+    "missing_purpose": "提供浓缩橙皮香、甜味和酒精支撑，并连接基酒与酸味。",
+    "rationale": "鲜橙可通过果汁和橙皮提供真实橙香，但浓度、甜味与酒精度均低于利口酒。使用果皮表达香气、少量果汁补味会比整份等量替换更合适。"
+  },
+  {
+    "missing": "橙味柑橘利口酒",
+    "substitute": "simple_syrup",
+    "substitute_purpose": "单糖浆 / Simple syrup (simple_syrup): 功能[sweetener]; 风味[sweet:3]; family=neutral",
+    "substitutability": 3,
+    "missing_purpose": "提供浓缩橙皮香、甜味和酒精支撑，并连接基酒与酸味。",
+    "rationale": "单糖浆只能补偿甜度，无法提供橙皮香和酒精支撑。除非橙味已由其他材料提供，否则会丢失核心风味。"
+  },
+  {
+    "missing": "覆盆子",
+    "substitute": "pomegranate_juice",
+    "substitute_purpose": "石榴汁 / Pomegranate juice (pomegranate_juice): 功能[acid, flavoring, sweetener]; 风味[sweet:2, sour:1, fruity:2]; family=berry",
+    "substitutability": 6,
+    "missing_purpose": "提供鲜红莓果香、甜酸感、颜色与少量果肉质地。",
+    "rationale": "石榴汁同样有红色果香、甜酸和平衡作用，颜色也相近；但风味更偏石榴且缺少覆盆子的鲜艳莓香和果肉感。"
+  },
+  {
+    "missing": "覆盆子",
+    "substitute": "orange_juice",
+    "substitute_purpose": "橙汁 / Orange juice (orange_juice): 功能[acid, dilution, flavoring]; 风味[sweet:2, sour:1, citrus:2]; family=orange",
+    "substitutability": 3,
+    "missing_purpose": "提供鲜红莓果香、甜酸感、颜色与少量果肉质地。",
+    "rationale": "橙汁能提供果味、甜酸和稀释，却属于柑橘而非红莓，颜色与香气差异很大。只适合覆盆子并非主角的配方。"
+  },
+  {
+    "missing": "覆盆子",
+    "substitute": "orange",
+    "substitute_purpose": "橙子 / Orange (orange): 功能[acid, flavoring]; 风味[sweet:2, sour:2, citrus:3, fruity:2]; family=orange",
+    "substitutability": 3,
+    "missing_purpose": "提供鲜红莓果香、甜酸感、颜色与少量果肉质地。",
+    "rationale": "橙子可提供新鲜果味和酸甜，但会把红莓调完全改成柑橘调，也无法复制覆盆子的颜色与细腻酸香。"
+  },
+  {
+    "missing": "草莓",
+    "substitute": "pomegranate_juice",
+    "substitute_purpose": "石榴汁 / Pomegranate juice (pomegranate_juice): 功能[acid, flavoring, sweetener]; 风味[sweet:2, sour:1, fruity:2]; family=berry",
+    "substitutability": 5,
+    "missing_purpose": "提供柔和红果甜香、轻微酸度、颜色与果肉质地。",
+    "rationale": "石榴汁能提供红色果香、甜酸和颜色，整体功能相近；但更酸涩、果香更深，缺少草莓的柔甜与果肉感。"
+  },
+  {
+    "missing": "草莓",
+    "substitute": "orange_juice",
+    "substitute_purpose": "橙汁 / Orange juice (orange_juice): 功能[acid, dilution, flavoring]; 风味[sweet:2, sour:1, citrus:2]; family=orange",
+    "substitutability": 3,
+    "missing_purpose": "提供柔和红果甜香、轻微酸度、颜色与果肉质地。",
+    "rationale": "橙汁能贡献果味和甜酸，却会将草莓风格改为柑橘风格，颜色和质地也不相似。仅适合草莓不是核心的饮品。"
+  },
+  {
+    "missing": "干洛神花",
+    "substitute": "pomegranate_juice",
+    "substitute_purpose": "石榴汁 / Pomegranate juice (pomegranate_juice): 功能[acid, flavoring, sweetener]; 风味[sweet:2, sour:1, fruity:2]; family=berry",
+    "substitutability": 7,
+    "missing_purpose": "提供深红颜色、蔓越莓般酸味、花果香与轻微涩感。",
+    "rationale": "石榴汁在颜色、果酸、轻涩和红果调上都较接近，能很好承担主体功能；但缺少洛神花特有的花香和干燥草本感。"
+  },
+  {
+    "missing": "白桃泥",
+    "substitute": "orange_juice",
+    "substitute_purpose": "橙汁 / Orange juice (orange_juice): 功能[acid, dilution, flavoring]; 风味[sweet:2, sour:1, citrus:2]; family=orange",
+    "substitutability": 4,
+    "missing_purpose": "提供柔甜白桃香、果肉稠度与圆润多汁的口感。",
+    "rationale": "橙汁能提供甜酸果味和液体体量，但香气更偏柑橘、酸度更高，也没有桃泥的稠度。适合改成清爽柑橘版本而非直接等价替换。"
+  },
+  {
+    "missing": "黑加仑利口酒",
+    "substitute": "pomegranate_juice",
+    "substitute_purpose": "石榴汁 / Pomegranate juice (pomegranate_juice): 功能[acid, flavoring, sweetener]; 风味[sweet:2, sour:1, fruity:2]; family=berry",
+    "substitutability": 6,
+    "missing_purpose": "提供浓郁黑加仑香、深色莓果甜酸、糖度与一定酒精度。",
+    "rationale": "石榴汁能复制深红果色、甜酸和部分浆果感，但缺少黑加仑的麝香浓度、利口酒糖度与酒精度。可作为无酒精或较轻盈的替代。"
+  },
+  {
+    "missing": "0.0% 无酒精杜松子风味蒸馏液",
+    "substitute": "gin",
+    "substitute_purpose": "琴酒 / Gin (gin): 功能[base]; 风味[floral:1, herbal:2]; family=herbal",
+    "substitutability": 5,
+    "missing_purpose": "作为无酒精基底，提供杜松子、草本与柑橘样蒸馏香气而不增加酒精。",
+    "rationale": "琴酒在杜松子和草本风味上最接近，但会把 0.0% 配方变成含酒精饮品，酒精热感和强度也明显增加。若允许酒精，可减量替换；若必须无酒精则不可用。"
+  },
+  {
+    "missing": "罗勒叶",
+    "substitute": "cucumber",
+    "substitute_purpose": "黄瓜 / Cucumber (cucumber): 功能[aromatic, dilution, flavoring]; 风味[sweet:1, herbal:2]; family=herbal",
+    "substitutability": 5,
+    "missing_purpose": "提供新鲜辛香、青绿草本气息与轻微胡椒感。",
+    "rationale": "黄瓜同样清新、青绿且带植物感，与多数罗勒配方不冲突；但香气更水润温和，缺少罗勒的辛香和浓度。"
+  },
+  {
+    "missing": "肉桂棒",
+    "substitute": "simple_syrup",
+    "substitute_purpose": "单糖浆 / Simple syrup (simple_syrup): 功能[sweetener]; 风味[sweet:3]; family=neutral",
+    "substitutability": 1,
+    "missing_purpose": "提供温暖甜香、木质辛香与装饰或浸泡带来的肉桂气息。",
+    "rationale": "单糖浆只有甜味，完全没有肉桂的辛香、木质香和装饰作用，不能承担核心功能。"
+  },
+  {
+    "missing": "烤孜然粉",
+    "substitute": "cucumber",
+    "substitute_purpose": "黄瓜 / Cucumber (cucumber): 功能[aromatic, dilution, flavoring]; 风味[sweet:1, herbal:2]; family=herbal",
+    "substitutability": 1,
+    "missing_purpose": "提供烘烤、泥土、坚果般的孜然辛香与咸鲜感。",
+    "rationale": "黄瓜虽有青绿植物感，但清凉水润，与烤孜然的温暖泥土辛香几乎相反，无法替代。"
+  },
+  {
+    "missing": "肉豆蔻粉",
+    "substitute": "simple_syrup",
+    "substitute_purpose": "单糖浆 / Simple syrup (simple_syrup): 功能[sweetener]; 风味[sweet:3]; family=neutral",
+    "substitutability": 1,
+    "missing_purpose": "提供温暖、木质、微甜且略带胡椒感的香料香气。",
+    "rationale": "单糖浆只能增加甜度，没有肉豆蔻的挥发性辛香与装饰香气，基本不可替。"
+  },
+  {
+    "missing": "豆蔻粉",
+    "substitute": "simple_syrup",
+    "substitute_purpose": "单糖浆 / Simple syrup (simple_syrup): 功能[sweetener]; 风味[sweet:3]; family=neutral",
+    "substitutability": 1,
+    "missing_purpose": "提供浓烈芳香、柑橘樟脑感与温暖辛香。",
+    "rationale": "单糖浆只提供中性甜味，无法复制豆蔻的高强度香料香气，功能本质不同。"
+  },
+  {
+    "missing": "抹茶",
+    "substitute": "cucumber",
+    "substitute_purpose": "黄瓜 / Cucumber (cucumber): 功能[aromatic, dilution, flavoring]; 风味[sweet:1, herbal:2]; family=herbal",
+    "substitutability": 2,
+    "missing_purpose": "提供茶香、青涩苦味、植物鲜味、粉体质感与绿色颜色。",
+    "rationale": "黄瓜有清新的绿色植物气息，风味不冲突，但缺少抹茶的茶苦、鲜味、粉感、颜色浓度和咖啡因。"
+  },
+  {
+    "missing": "Lillet Blanc",
+    "substitute": "white_rum",
+    "substitute_purpose": "白朗姆 / White rum (white_rum): 功能[base]; 风味[sweet:1, caramel:1]; family=caramel",
+    "substitutability": 3,
+    "missing_purpose": "提供低至中度酒精、白花与柑橘香、微甜和奎宁样苦韵的芳香葡萄酒基底。",
+    "rationale": "白朗姆同为酒精液体并可提供基底结构，但酒精度更高、风味更中性偏甘蔗，缺少 Lillet Blanc 的葡萄酒、花香和苦甜平衡。需减量并补充甜苦元素。"
+  },
+  {
+    "missing": "菲诺或阿蒙蒂亚多雪莉酒",
+    "substitute": "white_rum",
+    "substitute_purpose": "白朗姆 / White rum (white_rum): 功能[base]; 风味[sweet:1, caramel:1]; family=caramel",
+    "substitutability": 3,
+    "missing_purpose": "提供干型葡萄酒结构、坚果氧化香、咸鲜感与中等酒精度。",
+    "rationale": "白朗姆能提供酒精和少量甜感，但缺少雪莉酒的葡萄酒酸度、酵母或坚果氧化香及咸鲜感，酒精度也更高。只能用于不强调雪莉特色的配方。"
+  },
+  {
+    "missing": "伍斯特风味无酒精调味汁",
+    "substitute": "lemon_juice",
+    "substitute_purpose": "新鲜柠檬汁 / Fresh lemon juice (lemon_juice): 功能[acid]; 风味[sour:3, citrus:2]; family=citrus",
+    "substitutability": 2,
+    "missing_purpose": "提供咸鲜、发酵、香辛、酸甜和复杂酱汁深度。",
+    "rationale": "柠檬汁只能贡献酸度和提亮效果，缺少伍斯特风味的咸味、鲜味、发酵感与香辛复杂度。仅可在用量极小且其他咸鲜材料齐全时应急。"
+  },
+  {
+    "missing": "菠萝叶",
+    "substitute": "orange_peel",
+    "substitute_purpose": "橙皮 / Orange peel: 装饰/香气(橙皮精油)",
+    "substitutability": 6,
+    "missing_purpose": "主要用于热带视觉装饰，并带有极轻微的青绿菠萝香。",
+    "rationale": "橙皮同样适合作为装饰并能提供明显柑橘精油香，功能层面相近；但外观从热带叶片变为柑橘皮，香气也不同。"
+  }
+]

@@ -249,6 +249,44 @@ async def distill_conversation(history: list[dict], drink_name: str) -> str:
 # Smart substitution helpers (non-streaming, structured JSON)
 # --------------------------------------------------------------------------- #
 
+def _judge_fewshot_turns(fewshot):
+    """Render substitution few-shot examples as user/assistant pairs for the
+    judge prompt (calibrates verdict + confidence from a 0–10 score)."""
+    turns = []
+    for e in fewshot or []:
+        try:
+            s = int(e.get("substitutability"))
+        except (TypeError, ValueError):
+            continue
+        verdict = "yes" if s >= 7 else "conditional" if s >= 4 else "no"
+        conf = "high" if (s >= 8 or s <= 2) else "medium"
+        turns.append({"role": "user", "content":
+            f"missing={e.get('missing','')}; sub={e.get('substitute','')} ({e.get('substitute_purpose','')})"})
+        turns.append({"role": "assistant", "content": json.dumps({
+            "missing_id": e.get("missing", ""), "substitute_id": e.get("substitute", ""),
+            "verdict": verdict, "confidence": conf, "conditions": "",
+            "dosage_note": "", "reason": str(e.get("rationale", "") or ""),
+        }, ensure_ascii=False)})
+    return turns
+
+
+def _resolve_fewshot_turns(fewshot):
+    """Render few-shot examples for the unknown-name resolver (reinforces the
+    'uncertain -> null' rule with explicit null examples)."""
+    turns = []
+    for e in fewshot or []:
+        turns.append({"role": "user", "content": e.get("raw", "")})
+        turns.append({"role": "assistant", "content": json.dumps({
+            "raw": e.get("raw", ""),
+            "mapped_id": e.get("mapped_id", "") or None,
+            "substitute_id": e.get("substitute_id", "") or None,
+            "confidence": e.get("confidence", "medium"),
+            "reason": e.get("reason", ""),
+            "dosage_note": e.get("dosage_note", ""),
+        }, ensure_ascii=False)})
+    return turns
+
+
 def _extract_json_array(text: str) -> list | None:
     """Tolerantly pull the first JSON array out of an LLM reply."""
     text = (text or "").strip()
@@ -299,7 +337,7 @@ async def infer_profiles(items: list[dict], cli=None, model: str | None = None) 
     return data if isinstance(data, list) else []
 
 
-async def judge_substitutions(pairs: list[dict], cli=None, model: str | None = None) -> list[dict]:
+async def judge_substitutions(pairs: list[dict], cli=None, model: str | None = None, fewshot=None) -> list[dict]:
     """Judge whether each ``sub`` can substitute for ``missing``.
 
     ``pairs`` is a list of ``{"missing": {...}, "sub": {...}}`` where each
@@ -322,8 +360,10 @@ async def judge_substitutions(pairs: list[dict], cli=None, model: str | None = N
             "只输出一个 JSON 数组,每个元素都要带 missing_id 和 substitute_id 字段,顺序对应输入。"
             "不要任何其它文字。"
         )},
-        {"role": "user", "content": body[:6000]},
     ]
+    if fewshot:
+        messages += _judge_fewshot_turns(fewshot)
+    messages.append({"role": "user", "content": body[:6000]})
     resp = await (cli or client()).chat.completions.create(
         model=model or settings.llm_model, messages=messages, temperature=0, max_tokens=1800
     )
@@ -338,6 +378,7 @@ async def resolve_unknown_materials(
     stock: list[str],
     cli=None,
     model: str | None = None,
+    fewshot=None,
 ) -> list[dict]:
     """Conservatively map unrecognized ingredient names to catalog entries or
     in-stock substitutes. **Never hallucinates**: anything uncertain -> null.
@@ -366,12 +407,14 @@ async def resolve_unknown_materials(
             "只输出一个 JSON 数组，每个元素 {raw, mapped_id, substitute_id, confidence, reason, dosage_note}。"
             "raw 必须原样回填，mapped_id/substitute_id 为 null 或材料库里的 id。不要输出任何其它文字。"
         )},
-        {"role": "user", "content": (
-            f"材料库条目（只可选这里的 id）：\n{cat_text}\n\n"
-            f"库存(in_stock) ids：{', '.join(stock) or '(空)'}\n\n"
-            "未知材料名：\n" + "\n".join(f"- {x}" for x in items)
-        )},
     ]
+    if fewshot:
+        messages += _resolve_fewshot_turns(fewshot)
+    messages.append({"role": "user", "content": (
+        f"材料库条目（只可选这里的 id）：\n{cat_text}\n\n"
+        f"库存(in_stock) ids：{', '.join(stock) or '(空)'}\n\n"
+        "未知材料名：\n" + "\n".join(f"- {x}" for x in items)
+    )})
     try:
         resp = await (cli or client()).chat.completions.create(
             model=model or settings.llm_model, messages=msgs, temperature=0, max_tokens=2200

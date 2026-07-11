@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     llm_api_key: str = ""
     llm_model: str = "gpt-4o-mini"
     llm_refresh_model: str = ""  # optional faster/non-thinking model for background substitution refresh
+    sub_refresh_hour: int = 22  # local hour when the daily substitution refresh may run
 
     # --- Server ----------------------------------------------------------
     host: str = "0.0.0.0"

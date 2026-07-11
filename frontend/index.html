@@ -93,11 +93,17 @@
   <div class="settings-overlay" id="settingsOverlay" hidden>
     <div class="settings-panel" role="dialog" aria-modal="true">
       <div class="settings-head">
-        <h2 data-i18n="settings">Settings</h2>
+        <h2 id="settingsTitle" data-i18n="settings">Settings</h2>
         <button class="sheet-close" id="settingsClose" aria-label="Close">✕</button>
       </div>
 
-      <div class="settings-body">
+      <div class="settings-layout">
+        <nav class="settings-nav" role="tablist">
+          <button class="settings-nav-btn active" data-pane="settings" data-i18n="settings">设置</button>
+          <button class="settings-nav-btn" data-pane="cellar" data-i18n="cellarTitle">酒柜</button>
+        </nav>
+        <div class="settings-body">
+          <div class="pane" data-pane="settings">
         <div class="settings-section">
           <div class="settings-section-title">
             <span>LLM 接口 / LLM Endpoint</span>
@@ -138,10 +144,16 @@
             <button class="btn danger" id="clearMemoryBtn" data-i18n="clearMemory">Clear memory</button>
           </div>
         </div>
+          </div>
 
+          <div class="pane" data-pane="cellar" hidden>
         <div class="settings-section cellar-section">
           <div class="settings-section-title"><span data-i18n="cellarTitle">My cellar</span></div>
           <p class="settings-hint" data-i18n="cellarHint"></p>
+          <div class="cellar-toolbar">
+            <button class="btn ghost" id="refreshSubsBtn" data-i18n="refreshSubstitutes">替代品检索</button>
+            <span id="cellarMatrixStatus"></span>
+          </div>
           <div class="cellar-add">
             <input id="addIngredientName" type="text" data-i18n-ph="cellarAddPh" placeholder="搜索 / 添加材料…" autocomplete="off" />
             <select id="addIngredientCategory" aria-label="Ingredient category">
@@ -161,6 +173,8 @@
             <button class="btn" id="addIngredientBtn" data-i18n="addIngredient">Add</button>
           </div>
           <div class="cellar-list" id="cellarList"></div>
+        </div>
+          </div>
         </div>
       </div>
     </div>

@@ -178,7 +178,7 @@ button { font-family: inherit; }
 .settings-panel {
   background: var(--surface);
   width: 100%;
-  max-width: 480px;
+  max-width: 680px;
   max-height: 90vh;
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-lg);
@@ -196,6 +196,19 @@ button { font-family: inherit; }
 }
 .settings-head h2 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
 .settings-body { padding: 8px 20px 22px; overflow-y: auto; }
+.settings-layout { display: grid; grid-template-columns: 132px 1fr; min-height: 0; flex: 1; }
+.settings-nav { display: flex; flex-direction: column; gap: 4px; padding: 14px 8px; border-right: 1px solid var(--line); }
+.settings-nav-btn { text-align: left; border: 0; background: transparent; color: var(--text-2); padding: 9px 12px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.settings-nav-btn:hover { background: var(--bg-2); color: var(--text); }
+.settings-nav-btn.active { background: var(--accent-soft); color: var(--accent); }
+.pane[hidden] { display: none; }
+.cellar-toolbar { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
+@media (max-width: 540px) {
+  .settings-panel { max-width: 100%; }
+  .settings-layout { grid-template-columns: 1fr; }
+  .settings-nav { flex-direction: row; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 12px; }
+  .settings-nav-btn { flex: 1; text-align: center; }
+}
 .settings-section-title {
   font-size: 13px;
   font-weight: 700;
