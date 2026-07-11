@@ -1149,13 +1149,26 @@ body[data-view="bartender"] .app {
 .footer {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
   font-size: 11px;
   color: var(--text-3);
-  padding: 6px;
-  background: linear-gradient(transparent, rgba(245,245,247,0.9));
+  padding: 8px 12px;
+  background: rgba(245, 245, 247, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 1px solid var(--line);
   pointer-events: none;
 }
+.footer-sep { opacity: 0.45; }
+.footer-link {
+  color: inherit;          /* keep footer gray — no blue link */
+  text-decoration: none;   /* no underline */
+  pointer-events: auto;    /* footer is pointer-events:none */
+}
+.footer-link:active { opacity: 0.6; }
 
 /* animations */
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }

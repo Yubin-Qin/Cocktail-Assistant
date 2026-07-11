@@ -312,6 +312,7 @@ function toggleLang() {
   localStorage.setItem("cocktail.lang", state.lang);
   applyLang();
   moveSegThumb();
+  renderFooter();
   renderGrid();
   renderCellar();
   renderQuickPrompts();
@@ -339,16 +340,32 @@ function moveSegThumb() {
 }
 
 /* ----------------------------- data ------------------------------------ */
+function footerUrl() {
+  // Follow whatever IP/port the browser is actually using — that's the only
+  // value guaranteed correct. On loopback, fall back to the server's
+  // best-effort LAN IP (localhost isn't reachable from another device).
+  const host = window.location.hostname;
+  if (host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" || host === "::1") {
+    return (state.info && state.info.lan_url) || window.location.origin;
+  }
+  return window.location.origin;
+}
+
+function renderFooter() {
+  const lan = footerUrl();
+  $("#lanInfo").textContent =
+    state.lang === "zh"
+      ? `局域网访问 / LAN: ${lan}`
+      : `LAN: ${lan}`;
+}
+
 async function loadInfo() {
   try {
     state.info = await fetchJSON("/api/info");
-    $("#lanInfo").textContent =
-      state.lang === "zh"
-        ? `局域网访问 / LAN: ${state.info.lan_url}`
-        : `LAN: ${state.info.lan_url}`;
   } catch (e) {
     /* ignore — non-fatal */
   }
+  renderFooter();
 }
 
 async function loadRecipes() {
