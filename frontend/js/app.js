@@ -311,6 +311,7 @@ function toggleLang() {
   state.lang = state.lang === "zh" ? "en" : "zh";
   localStorage.setItem("cocktail.lang", state.lang);
   applyLang();
+  moveSegThumb();
   renderGrid();
   renderCellar();
   renderQuickPrompts();
